@@ -1,0 +1,17 @@
+{
+  "name": "mango",
+  "version": "1.0.0",
+  "description": "no discription",
+  "main": "main.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start": "npm run build && electron ./dist/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "2.0.5"
+  }
+}
