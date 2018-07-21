@@ -2,49 +2,36 @@
 <html lang="en">
     <head>
         <title>Manga Library</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css"> -->
         <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <style>
         .indent-l {width: 60%; float: left;}
         .indent-r {width: 40%; float: right;}
         .mangaEntryField {float: left; position: fixed; bottom:0%;}
-    </style>
+     </style>
     </head>
     <body>
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12 purple darken-3">
-                    <a class="brand-logo center white">Manga Library</a>
+            <div class="row" style="background-color:crimson">
+                <div class="col-lg-12" style="text-align: center">
+                    <a>Manga Library</a>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-7 blue darken-1">
-                    manga
+                <div class="col-sm-7">
+                    mangas
                     <ul></ul>
                 </div>
-                <div class="col-lg-5 blue">
+                <div class="col-sm-5">
                     <center>Pending</center>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-7">
+                <div class="col-sm-7">
                     <input class="mangaEntryField" type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles..">
                 </div>
             </div>
         </div>
-        <!-- <nav>
-            <div class="nav-wrapper purple darken-3">
-                <a class="brand-logo center">Manga Library</a>
-            </div>
-        </nav>
-        <input class="mangaEntryField" type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles..">
-        <section class="indent-l">
-            <ul></ul>
-        </section>
-        <section class="indent-r">
-            <center>Pending</center>
-        </section>
-         -->
         <script src="./mainwindow.js">
         
         </script>
