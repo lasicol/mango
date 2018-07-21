@@ -5,7 +5,7 @@ const path = require('path');
 const {app, BrowserWindow, Menu, ipcMain} = electron;
 
 //SEY ENV
-process.env.NODE_ENV = 'production'
+process.env.NODE_ENV = 'DEBUG'
 let mainWindow :any;
 let addWindow :any;
 //Liste for app to be ready
@@ -15,7 +15,7 @@ app.on('ready', function(){
     //Load html info window
     mainWindow.loadURL(url.format({
         //pathname: path.join(__dirname, '..mainWindow.html'),
-        pathname: path.join(__dirname, "../mainWindow.html"),
+        pathname: path.join(__dirname, "../gui/mainWindow.html"),
         protocol: 'file:',
         slashes: true
     }));
@@ -42,7 +42,7 @@ function createAddWindow(){
     
     //Load html info window
     addWindow.loadURL(url.format({
-        pathname: path.join(__dirname, '../addWindow.html'),
+        pathname: path.join(__dirname, '../gui/addWindow.html'),
         protocol: 'file:',
         slashes: true
     }));
@@ -92,20 +92,21 @@ const mainMenuTemplate = [
 // }
 
 //Add developer tools item if not in prod
-// if(process.env.NODE_ENV !== 'production'){
-//     mainMenuTemplate.push({
-//         label: 'Developer Tools',
-//         submenu:[
-//             {
-//                 label: 'Toggle DevTools',
-//                 accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
-//                 click(item, focusedWindow){
-//                     focusedWindow.toggleDevTools();
-//                 }
-//             },
-//             {
-//                 role: 'reload'
-//             }
-//         ]
-//     })
-// }
+if(process.env.NODE_ENV !== 'production'){
+    let obj : any = {
+        label: 'Developer Tools',
+        submenu:[
+            {
+                label: 'Toggle DevTools',
+                accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+                click(item: any, focusedWindow: any){
+                    focusedWindow.toggleDevTools();
+                }
+            },
+            {
+                role: 'reload'
+            }
+        ]
+    }
+    mainMenuTemplate.push(obj)
+}
