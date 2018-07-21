@@ -3,14 +3,26 @@
     <head>
         <title>Manga Library</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+    <style>
+        .indent-l {width: 60%; float: left;}
+        .indent-r {width: 40%; float: right;}
+        .mangaEntryField {float: left; position: fixed; bottom:0%;}
+    </style>
     </head>
     <body>
         <nav>
             <div class="nav-wrapper purple darken-3">
-                <a class="brand-logo center ">Manga Library</a>
+                <a class="brand-logo center">Manga Library</a>
             </div>
         </nav>
-        <ul></ul>
+        <input class="mangaEntryField" type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles..">
+        <section class="indent-l">
+                <ul></ul>
+        </section>
+        <section class="indent-r">
+            <center>Pending</center>
+        </section>
+        
         <script src="./mainwindow.js">
         
         </script>
