@@ -2,18 +2,45 @@
 <html lang="en">
     <head>
         <title>Add Manga</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+        <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css"> -->
     </head>
     <body>
-        <div class="container">
+        <!-- <div class="container"> -->
             <form>
-                <div>
-                    <label>Enter Item</label>
-                    <input type="text" id="item" autofocus>
+                <div class="container">
+                    <div class="row">
+                        <div class="col"><label>Title</label></div>
+                        <div class="col"><input type="text" id="title" autofocus></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Volume</label></div>
+                        <div class="col"><input type="text" id="volume"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Chapter</label></div>
+                        <div class="col"><input type="text" id="chapter"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Status</label></div>
+                        <div class="col"><input type="text" id="status"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Author</label></div>
+                        <div class="col"><input type="text" id="status"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col"><label>Notes</label></div>
+                        <div class="col"><input type="text" id="notes"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn waves-effect orange darken-2" type="submit">Add manga</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn waves-effect orange darken-2" type="submit">add item</button>
             </form>
-         </div>
+        <!-- </div> -->
         <script>
             const electron = require('electron');
             const {ipcRenderer} = electron;
@@ -24,7 +51,7 @@
             function submitForm(e){
                 //to stop the event from submitting to a file
                 e.preventDefault();
-                const item = document.querySelector('#item').value;
+                const item = document.querySelector('#title').value;
                 ipcRenderer.send('item:add', item);
             }
         </script>

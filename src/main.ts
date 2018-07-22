@@ -1,18 +1,30 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-
 const {app, BrowserWindow, Menu, ipcMain} = electron;
+const fs = require('fs');
+const jsonpath = path.join(__dirname, "../library.json")
+const library = openJson(jsonpath)
 
+function openJson(path: string){
+    if (!fs.existsSync(path)) {
+        //create new json file with empty library
+        var empty: any = [] //JEBAC TYPESCRIPT
+        var emptyLibrary = {lib: empty, pending : empty} //JEBAC TYPESCRIPT
+        var dictstring = JSON.stringify(emptyLibrary);
+        fs.writeFileSync(path, dictstring);//JEBAC ASYNCHRONICZNY JS
+    }
+    return require(path)
+}
 //SEY ENV
 process.env.NODE_ENV = 'DEBUG'
 let mainWindow :any;
 let addWindow :any;
-//Liste for app to be ready
+//Listen for app to be ready
 app.on('ready', function(){
     //Create new window, pass empty boject
     mainWindow = new BrowserWindow({});
-    //Load html info window
+    //Load html into window
     mainWindow.loadURL(url.format({
         //pathname: path.join(__dirname, '..mainWindow.html'),
         pathname: path.join(__dirname, "../gui/mainWindow.html"),
@@ -25,18 +37,21 @@ app.on('ready', function(){
         app.quit();
     })
 
-    //Build menu from tempalte
+    //Build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     //Insert menu
     Menu.setApplicationMenu(mainMenu);
+
+    //send json file to the mainwindow
+    mainWindow.webContents.send('lib:init', library);
 });
 
 // Handle create add window
 function createAddWindow(){
     //Create new window, pass empty boject
     addWindow = new BrowserWindow({
-        width: 300,
-        height: 200,
+        width: 320,
+        height: 300,
         title: 'Add Manga'
     });
     
@@ -53,7 +68,7 @@ function createAddWindow(){
 }
 
 // Catch item:add
-ipcMain.on('item:add', function(e :any, item :any){
+ipcMain.on('item:add', function(e: any, item :any){
     mainWindow.webContents.send('item:add', item);
     addWindow.close();
 })
