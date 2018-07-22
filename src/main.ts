@@ -2,20 +2,15 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 const {app, BrowserWindow, Menu, ipcMain} = electron;
+
+// ====================================================
+// -------------- reading json ------------------------
 const fs = require('fs');
 const jsonpath = path.join(__dirname, "../library.json")
-const library = openJson(jsonpath)
+import { JsonReader } from "./jsonReader"
+const library = new JsonReader(fs, jsonpath).openJson();
+// =====================================================
 
-function openJson(path: string){
-    if (!fs.existsSync(path)) {
-        //create new json file with empty library
-        var empty: any = [] //JEBAC TYPESCRIPT
-        var emptyLibrary = {lib: empty, pending : empty} //JEBAC TYPESCRIPT
-        var dictstring = JSON.stringify(emptyLibrary);
-        fs.writeFileSync(path, dictstring);//JEBAC ASYNCHRONICZNY JS
-    }
-    return require(path)
-}
 //SEY ENV
 process.env.NODE_ENV = 'DEBUG'
 let mainWindow :any;
