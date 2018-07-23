@@ -5,7 +5,11 @@
         <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css"> -->
         <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <style>
-        .mangaEntryField {float: left; position: fixed; bottom:0%;}
+        .collection {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen}
+        .mangaColumn {background-color: mediumslateblue;}
+        .mangaColumn li:hover:not(.header) {background-color: #eee;}
+         /* position:fixed; bottom:8mm} */
+        .mangaEntryField {float:none; position: fixed; bottom:0%;}
      </style>   
     </head>
     <body>
@@ -16,7 +20,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col mangaColumn">
                     mangas
                     <ul id="Mangalist"></ul>
                 </div>
@@ -25,13 +29,12 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
-                    <input class="mangaEntryField" type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles..">
+                <div class="col mangaEntryField">
+                    <input type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles...">
                 </div>
             </div>
         <!-- </div> -->
         <script src="./mainwindow.js">
-        
         </script>
     </body>
 </html>

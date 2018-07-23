@@ -32,11 +32,19 @@ ipcRenderer.on('item:clear', function(){
     MangaList.innerHTML = '';
     MangaList.className = '';
 });
+//load library to main window (doesnt work yet)
+ipcRenderer.on('lib:load', function(e, library){
+    var li; var itemText;
+    MangaList.className = 'collection';
+    library.lib.forEach((element) => {
+        li = document.createElement('li');
+        li.className = 'collection-item';
+        itemText = document.createTextNode(element.title);
+        li.appendChild(itemText);
+        MangaList.appendChild(li)
+    })
+});
 
-ipcRenderer.on('lib:init', function(e, library){
-    console.log(library.lib[0])
-    
-})
 //Remove item
 MangaList.addEventListener('dblclick', removeItem);
 

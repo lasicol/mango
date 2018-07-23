@@ -1,17 +1,17 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-const {app, BrowserWindow, Menu, ipcMain} = electron;
+const {app, BrowserWindow, Menu, ipcMain, globalShortcut} = electron;
 
 // ====================================================
 // -------------- reading json ------------------------
 const fs = require('fs');
 const jsonpath = path.join(__dirname, "../library.json")
 import { JsonReader } from "./jsonReader"
-const library = new JsonReader(fs, jsonpath).openJson();
+var library = new JsonReader(fs, jsonpath).openJson();
 // =====================================================
 
-//SEY ENV
+//SET ENV
 process.env.NODE_ENV = 'DEBUG'
 let mainWindow :any;
 let addWindow :any;
@@ -31,15 +31,23 @@ app.on('ready', function(){
     mainWindow.on('closed', function(){
         app.quit();
     })
-
+    
     //Build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     //Insert menu
     Menu.setApplicationMenu(mainMenu);
 
     //send json file to the mainwindow
-    mainWindow.webContents.send('lib:init', library);
+    mainWindow.webContents.send('lib:load', library);
+
+    globalShortcut.register('Control+D', () => {
+        mainWindow.webContents.send('lib:load', library);
+      })
+
+
 });
+//global shortcut
+
 
 // Handle create add window
 function createAddWindow(){
