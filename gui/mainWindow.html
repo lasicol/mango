@@ -7,17 +7,28 @@
     <style>
         /* .collection {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen} */
         body {overflow-x: hidden}
-        ::-webkit-scrollbar {width: 0px; background: transparent;}
+        /* ::-webkit-scrollbar {width: 0px; background: transparent;} */
+        ::-webkit-scrollbar {width: 12px;}
+        ::-webkit-scrollbar-track {
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+        }
         #Mangalist {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen}
         #Pendinglist {padding-left: 0; list-style-type: none; margin: 0;background-color: rgb(4, 150, 82)}
-        #myInput {width:100%;}
-        #secondRow {margin-bottom: 30px;}
+        #myInput {width:100%; padding-right: 0%}
+        /* #secondRow {margin-bottom: 30px;} */
         .mangaColumn {background-color: mediumslateblue; overflow-y:auto; padding-right: 0;}
         .mangaColumn li:hover:not(.header) {background-color: #eee;}
         .pendingColumn {background-color:goldenrod; overflow-y:auto;  padding-left: 0}
         .pendingColumn li:hover:not(.header) {background-color: #eee;}
-        .mangaEntryField {float:none; position: fixed; bottom:0%;}
-     </style> 
+        /* .mangaEntryField {float:none; position: fixed; bottom:0%;} */
+     </style>
     </head>
     <body>
         <!-- <div class="container"> -->
@@ -38,8 +49,11 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-7 mangaEntryField">
+                <div class="col-7 mangaEntryField" style="padding-right:0%">
                     <input type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles...">
+                </div>
+                <div class="col-5", style="background-color: coral">
+                    adasd
                 </div>
             </div>
         <!-- </div> -->

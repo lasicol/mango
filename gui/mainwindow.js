@@ -60,8 +60,6 @@ ipcRenderer.on('resize', (e, windowHeight) => {
     newHeight = parseInt(windowHeight) - 112
     newheightStr = newHeight.toString() + 'px'
     SecondRow.style.maxHeight = newheightStr
-    console.log(newheightStr)
-    
 })
 
 //Remove item from left column
