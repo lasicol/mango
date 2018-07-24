@@ -8,6 +8,7 @@ const {app, BrowserWindow, Menu, ipcMain, globalShortcut} = electron;
 const fs = require('fs');
 const jsonpath = path.join(__dirname, "../library.json")
 import { JsonReader } from "./jsonReader"
+import { TIMEOUT } from "dns";
 var library = new JsonReader(fs, jsonpath).openJson();
 // =====================================================
 
@@ -17,8 +18,11 @@ let mainWindow :any;
 let addWindow :any;
 //Listen for app to be ready
 app.on('ready', function(){
-    //Create new window, pass empty boject
-    mainWindow = new BrowserWindow({});
+    //Create new window, pass empty object
+    mainWindow = new BrowserWindow({
+        minWidth: 500,
+        minHeight: 600
+    })//{titleBarStyle: 'customButtonsOnHover', frame: false});
     //Load html into window
     mainWindow.loadURL(url.format({
         //pathname: path.join(__dirname, '..mainWindow.html'),
@@ -26,27 +30,48 @@ app.on('ready', function(){
         protocol: 'file:',
         slashes: true
     }));
+    console.log("html is loaded.")
     console.log(mainWindow.pathname)
     // Quit App when closed
     mainWindow.on('closed', function(){
         app.quit();
     })
-    
+    mainWindow.on('resize', () => {
+        let height = mainWindow.webContents.getOwnerBrowserWindow().getBounds().height
+        mainWindow.webContents.send('resize', height);
+    })
+
     //Build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     //Insert menu
     Menu.setApplicationMenu(mainMenu);
 
-    //send json file to the mainwindow
-    mainWindow.webContents.send('lib:load', library);
-
+    
+    //global shortcut
     globalShortcut.register('Control+D', () => {
         mainWindow.webContents.send('lib:load', library);
-      })
-
-
+    })
 });
-//global shortcut
+
+
+//send json file to the mainwindow
+ipcMain.on('mainhtml:ready', () => {
+    mainWindow.webContents.send('lib:load', library);
+})
+// app.once('ready-to-show', () => {
+//     //send json file to the mainwindow
+//     if (app.isReady()){
+//         console.log("application is ready.")
+//         mainWindow.webContents.send('lib:load', library);
+//     }
+//     else{
+//         console.log("Application is not ready yet")
+//     }
+// })
+// app.on('browser-window-created', () =>{
+    
+// })
+
 
 
 // Handle create add window

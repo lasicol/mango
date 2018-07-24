@@ -5,12 +5,19 @@
         <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css"> -->
         <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <style>
-        .collection {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen}
-        .mangaColumn {background-color: mediumslateblue;}
+        /* .collection {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen} */
+        body {overflow-x: hidden}
+        ::-webkit-scrollbar {width: 0px; background: transparent;}
+        #Mangalist {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen}
+        #Pendinglist {padding-left: 0; list-style-type: none; margin: 0;background-color: rgb(4, 150, 82)}
+        #myInput {width:100%;}
+        #secondRow {margin-bottom: 30px;}
+        .mangaColumn {background-color: mediumslateblue; overflow-y:auto;}
         .mangaColumn li:hover:not(.header) {background-color: #eee;}
-         /* position:fixed; bottom:8mm} */
+        .pendingColumn {background-color:goldenrod; overflow-y:auto;}
+        .pendingColumn li:hover:not(.header) {background-color: #eee;}
         .mangaEntryField {float:none; position: fixed; bottom:0%;}
-     </style>   
+     </style> 
     </head>
     <body>
         <!-- <div class="container"> -->
@@ -19,22 +26,23 @@
                     <a>Manga Library</a>
                 </div>
             </div>
-            <div class="row">
-                <div class="col mangaColumn">
-                    mangas
+            <div id = "secondRow" class="row", style="max-height: 488px">
+                <div class="col-7 mangaColumn">
                     <ul id="Mangalist"></ul>
                 </div>
-                <div class="col">
-                    <center>Pending</center>
+                <div class="col-5 pendingColumn">
+                    <ul id="Pendinglist"></ul>
+                    <div class="row">
+                        <div class="col"><center>Stats</center></div>
+                    </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col mangaEntryField">
+                <div class="col-7 mangaEntryField">
                     <input type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles...">
                 </div>
             </div>
         <!-- </div> -->
-        <script src="./mainwindow.js">
-        </script>
+        <script src="./mainwindow.js"></script>          
     </body>
 </html>

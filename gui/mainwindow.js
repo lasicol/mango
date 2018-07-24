@@ -2,6 +2,8 @@ const electron = require('electron');
 const {ipcRenderer} = electron;
 //const ul = document.querySelector('ul');
 const MangaList = document.getElementById('Mangalist');
+const PendingList = document.getElementById('Pendinglist');
+const SecondRow = document.getElementById('secondRow')
 //Add item
 ipcRenderer.on('item:add', function(e, item){
     item = item.toLowerCase()
@@ -32,7 +34,7 @@ ipcRenderer.on('item:clear', function(){
     MangaList.innerHTML = '';
     MangaList.className = '';
 });
-//load library to main window (doesnt work yet)
+//load library to main window
 ipcRenderer.on('lib:load', function(e, library){
     var li; var itemText;
     MangaList.className = 'collection';
@@ -43,14 +45,40 @@ ipcRenderer.on('lib:load', function(e, library){
         li.appendChild(itemText);
         MangaList.appendChild(li)
     })
+    library.pending.forEach((element) => {
+        li = document.createElement('li');
+        li.className = 'collection-item';
+        element = element.replace("http://", "").replace("www.mangago.me/read-manga/", "")
+        itemText = document.createTextNode(element);
+        li.appendChild(itemText);
+        PendingList.appendChild(li)
+    })
 });
 
-//Remove item
+//resize second row along with window to maintain layout
+ipcRenderer.on('resize', (e, windowHeight) => {
+    newHeight = parseInt(windowHeight) - 112
+    newheightStr = newHeight.toString() + 'px'
+    SecondRow.style.maxHeight = newheightStr
+    console.log(newheightStr)
+    
+})
+
+//Remove item from left column
 MangaList.addEventListener('dblclick', removeItem);
+
+//Informs ipcMain that html is loaded
+ipcRenderer.send('mainhtml:ready')
 
 function removeItem(e){
     e.target.remove();
     if(ul.children.length == 0){
         ul.className = '';
     }
+}
+
+function FilterManga(){
+    text = document.getElementById("myInput").value
+    console.log(text)
+
 }
