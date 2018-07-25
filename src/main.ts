@@ -21,8 +21,9 @@ app.on('ready', function(){
     //Create new window, pass empty object
     mainWindow = new BrowserWindow({
         minWidth: 500,
-        minHeight: 600
-    })//{titleBarStyle: 'customButtonsOnHover', frame: false});
+        minHeight: 600,
+        //frame:false
+    })
     //Load html into window
     mainWindow.loadURL(url.format({
         //pathname: path.join(__dirname, '..mainWindow.html'),

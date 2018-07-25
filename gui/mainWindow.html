@@ -5,25 +5,30 @@
         <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css"> -->
         <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <style>
-        /* .collection {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen} */
-        body {overflow-x: hidden}
+        body {overflow-x: hidden;}
         /* ::-webkit-scrollbar {width: 0px; background: transparent;} */
         ::-webkit-scrollbar {width: 12px;}
         ::-webkit-scrollbar-track {
             box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
             -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
-            border-radius: 10px;
+            /* border-radius: 10px; */
         }
         ::-webkit-scrollbar-thumb {
-            border-radius: 10px;
+            /* border-radius: 10px; */
             box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
             -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
         }
-        #Mangalist {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen}
+        #Mangalist {padding-left: 0; list-style-type: none; margin: 0;background-color: limegreen;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
         #Pendinglist {padding-left: 0; list-style-type: none; margin: 0;background-color: rgb(4, 150, 82)}
         #myInput {width:100%; padding-right: 0%}
-        /* #secondRow {margin-bottom: 30px;} */
-        .mangaColumn {background-color: mediumslateblue; overflow-y:auto; padding-right: 0;}
+        .mangaColumn {background-color: limegreen; overflow-y:auto; padding-right: 0;}
         .mangaColumn li:hover:not(.header) {background-color: #eee;}
         .pendingColumn {background-color:goldenrod; overflow-y:auto;  padding-left: 0}
         .pendingColumn li:hover:not(.header) {background-color: #eee;}
@@ -33,11 +38,9 @@
     <body>
         <!-- <div class="container"> -->
             <div class="row" style="background-color:crimson">
-                <div class="col-lg-12" style="text-align: center">
-                    <a>Manga Library</a>
-                </div>
+                <div class="col" style="text-align: center"><a>Manga Library</a></div>
             </div>
-            <div id = "secondRow" class="row", style="max-height: 488px">
+            <div id = "secondRow" class="row", style="height: 488px">
                 <div class="col-7 mangaColumn">
                     <ul id="Mangalist"></ul>
                 </div>
@@ -52,8 +55,8 @@
                 <div class="col-7 mangaEntryField" style="padding-right:0%">
                     <input type="text" id="myInput" onkeyup="FilterManga()" placeholder="Search for titles...">
                 </div>
-                <div class="col-5", style="background-color: coral">
-                    adasd
+                <div class="col-5", style="background-color: goldenrod">
+                    temporary extension of column above
                 </div>
             </div>
         <!-- </div> -->
