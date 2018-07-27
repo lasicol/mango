@@ -117,6 +117,9 @@ window.addEventListener('mousedown', (event) => {
     if (event.ctrlKey == true){
 
     }
+    else{
+        selectedManga = [event.target.id]
+    }
 });
 
 window.addEventListener('contextmenu', (event) => {
