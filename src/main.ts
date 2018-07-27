@@ -22,7 +22,7 @@ app.on('ready', function(){
     mainWindow = new BrowserWindow({
         minWidth: 500,
         minHeight: 600,
-        //frame:false
+        frame:false
     })
     //Load html into window
     mainWindow.loadURL(url.format({
@@ -40,6 +40,10 @@ app.on('ready', function(){
     mainWindow.on('resize', () => {
         let height = mainWindow.webContents.getOwnerBrowserWindow().getBounds().height
         mainWindow.webContents.send('resize', height);
+    })
+    mainWindow.on('maximize', () => {
+        let height = mainWindow.webContents.getOwnerBrowserWindow().getBounds().height
+        mainWindow.webContents.send('maximize', height);
     })
 
     //Build menu from template

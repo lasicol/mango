@@ -1,7 +1,9 @@
 const electron = require('electron');
 const {ipcRenderer, remote} = electron;
 const {Menu, MenuItem} = remote
+const path = require('path');
 const uniqid = require('uniqid');
+const manga = require(path.join(__dirname, "../gui/manga.js"))
 //const ul = document.querySelector('ul');
 const mangaListHtml = document.getElementById('Mangalist');
 const pendingListHtml = document.getElementById('Pendinglist');
@@ -9,37 +11,22 @@ const secondRow = document.getElementById('secondRow')
 
 //Creating context menus
 const mangaMenu = new Menu()
-mangaMenu.append(new MenuItem({label: 'Update Entry', click() {console.log('Edit') }}))
+mangaMenu.append(new MenuItem({label: 'Update Entry', click() {console.log('Update') }}))
 mangaMenu.append(new MenuItem({label: 'Copy Title', click() {console.log('Copy') }}))
 mangaMenu.append(new MenuItem({type: 'separator'}))
 mangaMenu.append(new MenuItem({label: 'Filter by this author', click() {console.log('Filter by author') }}))
 mangaMenu.append(new MenuItem({type: 'separator'}))
 mangaMenu.append(new MenuItem({label: 'Delete Entry', click() {console.log('Delete')}}))
 const pendingMenu = new Menu()
+pendingMenu.append(new MenuItem({label: 'Add Pending', click() {console.log('Add') }}))
 pendingMenu.append(new MenuItem({label: 'Copy Link', click() {console.log('Copy') }}))
 pendingMenu.append(new MenuItem({type: 'separator'}))
 pendingMenu.append(new MenuItem({label: 'Delete Entry', click() {console.log('Delete')}}))
 
-class Manga{
-    constructor(title, volume, chapter, status, author, notes){
-        this.index = ++Manga.index
-        this.title = title
-        this.volume = volume
-        this.chapter = chapter
-        this.status = status
-        this.author = author
-        this.notes = notes
-        this.index = uniqid("manga-")
-    }
-    toStr(){
-        if (this.notes != ""){
-            return `${this.title} v${this.volume} c${this.chapter} ${this.status} ${this.author} ${this.notes}` 
-        }
-        else{
-            return `${this.title} v${this.volume} c${this.chapter} ${this.status} ${this.author}` 
-        }
-    }
-}
+
+var mangaList = []
+var pendingList = []
+var selectedManga = []
 
 //Add item
 ipcRenderer.on('item:add', function(e, item){
@@ -72,18 +59,33 @@ ipcRenderer.on('item:clear', function(){
     mangaListHtml.className = '';
 });
 //load library to main window
-ipcRenderer.on('lib:load', function(e, library){
+ipcRenderer.on('lib:load', (event, library) => {
+    loadLibrary(library)
+    showLibrary()
+});
+
+function loadLibrary(library){
+    library.lib.forEach((element) => {
+        mangaItem = new manga.manga(element.title, element.volume, element.chapter, element.status, element.author, element.notes)
+        mangaList.push(mangaItem)
+    })
+    library.pending.forEach((element) => {
+        pendingList.push(element)
+    })
+}
+
+function showLibrary(){
     var li; var itemText;
     mangaListHtml.className = 'collection';
-    library.lib.forEach((element) => {
-        itemText = document.createTextNode(element.title);
+    mangaList.forEach((element) => {
+        itemText = document.createTextNode(element.toString());
         li = document.createElement('li');
         li.className = 'collection-item';
-        li.id = "manga-item"
+        li.id = element.id
         li.appendChild(itemText);
         mangaListHtml.appendChild(li)
     })
-    library.pending.forEach((element) => {
+    pendingList.forEach((element) => {
         element = element.replace("http://", "").replace("www.mangago.me/read-manga/", "")
         itemText = document.createTextNode(element);
         li = document.createElement('li');
@@ -92,14 +94,22 @@ ipcRenderer.on('lib:load', function(e, library){
         li.appendChild(itemText);
         pendingListHtml.appendChild(li)
     })
-});
+}
 
-//resize second row along with the main window to maintain layout
+// ================================================
+// ----- maintain layout during maximize/resize----
 ipcRenderer.on('resize', (e, windowHeight) => {
-    newHeight = parseInt(windowHeight) - 112
+    newHeight = parseInt(windowHeight) - 50
     newheightStr = newHeight.toString() + 'px'
     secondRow.style.height = newheightStr
 })
+ipcRenderer.on('maximize', (e, windowHeight) => {
+    newHeight = parseInt(windowHeight) - 66
+    newheightStr = newHeight.toString() + 'px'
+    secondRow.style.height = newheightStr
+})
+// ================================================
+
 
 //Remove item from left column
 //MangaList.addEventListener('dblclick', editItem);
@@ -109,19 +119,31 @@ window.addEventListener('mousedown', (event) => {
     }
 });
 
-
-
 window.addEventListener('contextmenu', (event) => {
     event.preventDefault()
-    if (event.target.id == 'manga-item'){
+    if (event.target.id.substring(0, 6) == 'manga-'){
         mangaMenu.popup({window: remote.getCurrentWindow()})
     }else if (event.target.id == 'pending-item'){
         pendingMenu.popup({window: remote.getCurrentWindow()})
     }
 }, false)
 
-
-
+// =============================================================================
+// ---------------------- app buttons ------------------------------------------
+document.getElementById('minimizeButton').addEventListener('click', (event) => {
+    var window = remote.getCurrentWindow();
+    window.minimize(); 
+})
+document.getElementById('maximizeButton').addEventListener('click', (event) => {
+    var window = remote.getCurrentWindow();
+    if (window.isMaximized()){ window.unmaximize() }
+    else{ window.maximize() }
+})
+document.getElementById('exitButton').addEventListener('click', (event) => {
+    var window = remote.getCurrentWindow();
+    window.close(); 
+})
+// =============================================================================
 function removeItem(event){
     event.target.remove();
     if(mangaListHtml.children.length == 0){
@@ -134,7 +156,7 @@ function editItem(e){
 
 
 function FilterManga(){
-    text = document.getElementById("myInput").value
+    text = document.getElementById("mangaInput").value
     console.log(text)
 
 }
