@@ -20,7 +20,7 @@ let addWindow :any;
 app.on('ready', function(){
     //Create new window, pass empty object
     mainWindow = new BrowserWindow({
-        minWidth: 500,
+        minWidth: 700,
         minHeight: 600,
         frame:false
     })
@@ -31,8 +31,7 @@ app.on('ready', function(){
         protocol: 'file:',
         slashes: true
     }));
-    console.log("html is loaded.")
-    console.log(mainWindow.pathname)
+
     // Quit App when closed
     mainWindow.on('closed', function(){
         app.quit();
@@ -63,20 +62,6 @@ app.on('ready', function(){
 ipcMain.on('mainhtml:ready', () => {
     mainWindow.webContents.send('lib:load', library);
 })
-// app.once('ready-to-show', () => {
-//     //send json file to the mainwindow
-//     if (app.isReady()){
-//         console.log("application is ready.")
-//         mainWindow.webContents.send('lib:load', library);
-//     }
-//     else{
-//         console.log("Application is not ready yet")
-//     }
-// })
-// app.on('browser-window-created', () =>{
-    
-// })
-
 
 
 // Handle create add window

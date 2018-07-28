@@ -14,8 +14,6 @@ const mangaMenu = new Menu()
 mangaMenu.append(new MenuItem({label: 'Update Entry', click() {console.log('Update') }}))
 mangaMenu.append(new MenuItem({label: 'Copy Title', click() {console.log('Copy') }}))
 mangaMenu.append(new MenuItem({type: 'separator'}))
-mangaMenu.append(new MenuItem({label: 'Filter by this author', click() {console.log('Filter by author') }}))
-mangaMenu.append(new MenuItem({type: 'separator'}))
 mangaMenu.append(new MenuItem({label: 'Delete Entry', click() {console.log('Delete')}}))
 const pendingMenu = new Menu()
 pendingMenu.append(new MenuItem({label: 'Add Pending', click() {console.log('Add') }}))
@@ -24,7 +22,7 @@ pendingMenu.append(new MenuItem({type: 'separator'}))
 pendingMenu.append(new MenuItem({label: 'Delete Entry', click() {console.log('Delete')}}))
 
 
-var mangaList = []
+var mangaList = [] //elements are of type manga.manga
 var pendingList = []
 var selectedManga = []
 
@@ -61,7 +59,8 @@ ipcRenderer.on('item:clear', function(){
 //load library to main window
 ipcRenderer.on('lib:load', (event, library) => {
     loadLibrary(library)
-    showLibrary()
+    showLeftList(mangaList)
+    showRightList(pendingList)
 });
 
 function loadLibrary(library){
@@ -74,28 +73,34 @@ function loadLibrary(library){
     })
 }
 
-function showLibrary(){
+function showLeftList(itemList){
     var li; var itemText;
     mangaListHtml.className = 'collection';
-    mangaList.forEach((element) => {
-        itemText = document.createTextNode(element.toString());
-        li = document.createElement('li');
-        li.className = 'collection-item';
-        li.id = element.id
-        li.appendChild(itemText);
-        mangaListHtml.appendChild(li)
-    })
-    pendingList.forEach((element) => {
-        element = element.replace("http://", "").replace("www.mangago.me/read-manga/", "")
-        itemText = document.createTextNode(element);
-        li = document.createElement('li');
-        li.className = 'collection-item';
-        li.id = "pending-item"
-        li.appendChild(itemText);
-        pendingListHtml.appendChild(li)
+    itemList.forEach((element) => {
+        createLi(element.toString(), 'collection-item', element.id, mangaListHtml)
+    })   
+}
+
+function showRightList(itemList){
+    var li; var itemText;
+    itemList.forEach((element) => {
+        createLi(linkToTitle(element), 'collection-item', 'pending-item', pendingListHtml)
     })
 }
 
+function createLi(text, className, id, targetHtmlObject){
+    itemText = document.createTextNode(text);
+    var li = document.createElement('li');
+    li.className = className;
+    li.id = id
+    li.appendChild(itemText);
+    targetHtmlObject.appendChild(li)
+}
+
+function linkToTitle(link){
+    return link.replace("http://", "").replace("www.mangago.me/read-manga/", "").replace("_", " ").replace("/", " ")
+    //change to use regular expresion
+}
 // ================================================
 // ----- maintain layout during maximize/resize----
 ipcRenderer.on('resize', (e, windowHeight) => {
@@ -111,17 +116,25 @@ ipcRenderer.on('maximize', (e, windowHeight) => {
 // ================================================
 
 
-//Remove item from left column
-//MangaList.addEventListener('dblclick', editItem);
-window.addEventListener('mousedown', (event) => {
-    if (event.ctrlKey == true){
-
+mangaListHtml.addEventListener('mousedown', (event) => {
+    var element = event.target
+    if (event.ctrlKey){
+        
+        selectedManga.push(element.id)
     }
     else{
-        selectedManga = [event.target.id]
+        selectedManga.forEach( (id) => {
+            document.getElementById(id).style.color = ''
+        })
+        selectedManga = [element.id]
     }
+    document.getElementById(element.id).style.color = 'red'
+    console.log(selectedManga)
 });
 
+
+// =============================================================================
+// ---------------------- add app contextmenu ----------------------------------
 window.addEventListener('contextmenu', (event) => {
     event.preventDefault()
     if (event.target.id.substring(0, 6) == 'manga-'){
@@ -130,9 +143,10 @@ window.addEventListener('contextmenu', (event) => {
         pendingMenu.popup({window: remote.getCurrentWindow()})
     }
 }, false)
+// =============================================================================
 
 // =============================================================================
-// ---------------------- app buttons ------------------------------------------
+// ---------------------- add app buttons --------------------------------------
 document.getElementById('minimizeButton').addEventListener('click', (event) => {
     var window = remote.getCurrentWindow();
     window.minimize(); 
@@ -147,22 +161,53 @@ document.getElementById('exitButton').addEventListener('click', (event) => {
     window.close(); 
 })
 // =============================================================================
+
+
+function findById(array, id){
+    for (var i = 0; i < array.length; i++){
+        if (array[i].id == id){
+            return i
+        }
+    }
+    return -1
+}
+
+//Remove item from left column
+//mangaListHtml.addEventListener('dblclick', removeItem);
+
 function removeItem(event){
-    event.target.remove();
+    elementHtml = event.target
+    var index = findById(mangaList, elementHtml.id)
+    if (index > -1){
+        elementHtml.remove()
+        mangaList.splice(index, 1)
+    }
+    
     if(mangaListHtml.children.length == 0){
         mangaListHtml.className = '';
     }
 }
-function editItem(e){
+function editItem(event){
 
 }
 
 
 function FilterManga(){
-    text = document.getElementById("mangaInput").value
-    console.log(text)
-
+    var text = document.getElementById("mangaInput").value
+    var filtered = mangaList.filter(element => element.toString().toLowerCase().includes(text))
+    mangaListHtml.innerHTML = ''
+    showLeftList(filtered)
 }
 
+//add items to right column
+document.getElementById("pendingInput").addEventListener('keyup', (event) => {
+    var input = document.getElementById("pendingInput")
+    var text = input.value
+    if (event.key == "Enter" && text != ""){
+        pendingList.push(text)
+        createLi(linkToTitle(text), 'collection-item', 'pending-item', pendingListHtml)
+        input.value = ''
+    }
+})
 //Informs ipcMain that html is loaded
 ipcRenderer.send('mainhtml:ready')

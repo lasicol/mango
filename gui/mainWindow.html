@@ -27,11 +27,12 @@
         #Pendinglist {padding-left: 0; list-style-type: none; margin: 0;background-color: rgb(47, 49, 54); color: rgb(114, 118, 125)}
         #mangaInput {width:100%; padding-right: 0%; background-color: rgb(72, 75, 81); border-color: rgb(72, 75, 81); border:0px; color: rgb(179, 180, 183);}
         #mangaInput:focus {outline: none}
-        #pendingInput {width:100%; padding-right: 0%; background-color: rgb(72, 75, 81); border-color: rgb(72, 75, 81); border:0px; color: rgb(179, 180, 183);}
+        #pendingInput {width:100%; padding-right: 0%; background-color: rgb(72, 75, 81); border-color: rgb(72, 75, 81);
+            border:0px; color: rgb(179, 180, 183);overflow: hidden; text-overflow: ellipsis}
         #pendingInput:focus {outline: none}
         .mangaColumn {background-color: rgb(47, 49, 54); overflow-y:auto; padding-right:0;}
         .mangaColumn li:hover:not(.header) {background-color: #eee;}
-        .pendingColumn {background-color:rgb(72, 75, 81); overflow-y:auto;padding-left: 0;}
+        .pendingColumn {background-color:rgb(72, 75, 81); overflow-y:auto;padding-left: 0}
         .pendingColumn li:hover:not(.header) {background-color: #eee;}
 
         #minimizeButton:hover {color:white}
@@ -40,7 +41,7 @@
      </style>
     </head>
     <body>
-        <!-- <div class="container"> -->
+        <!-- <div class="container" style="margin: 0; padding: 0; "> -->
             <div class="row" style="background-color: rgb(32, 34, 37); color: rgb(114, 118, 125); font-weight:bold; -webkit-app-region: drag">
                 <div class="col" style="text-align: center;"><a>Manga Library</a></div>
                     <div class="row" style="-webkit-app-region: no-drag; user-select: none">
@@ -56,7 +57,7 @@
                 <div class="col-5 pendingColumn">
                     <ul id="Pendinglist" style="height: 250px; overflow-x:auto"></ul>
                     <div class="row">
-                        <div class="col pendingEntryField" style="padding-right:0%">
+                        <div class="col pendingEntryField" style="padding-right:0%;">
                             <input type="text" id="pendingInput" placeholder="Enter link to pending manga...">
                         </div>
                     </div>
@@ -66,7 +67,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-7 mangaEntryField" style="padding-right:0%">
+                <div class="col-7 mangaEntryField" style="padding-right: 0">
                     <input type="text" id="mangaInput" onkeyup="FilterManga()" placeholder="Search for titles...">
                 </div>
                 <div class="col-5", style="background-color: rgb(72, 75, 81)"></div> 

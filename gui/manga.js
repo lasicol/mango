@@ -1,4 +1,4 @@
-exports.__esModule = true;
+//exports.__esModule = true;
 class manga{
     constructor(title, volume, chapter, status, author, notes){
         this.title = title
