@@ -1,0 +1,71 @@
+body {
+    overflow-x: hidden;
+}
+/* ::-webkit-scrollbar {width: 0px; background: transparent;} */
+::-webkit-scrollbar {
+    width: 12px;
+}
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+}
+::-webkit-scrollbar-thumb {
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+#titleBar {
+    background-color: rgb(32, 34, 37);
+    color: rgb(114, 118, 125);
+    font-weight:bold;
+    -webkit-app-region: drag
+}
+.button {
+    padding-left: 6px
+}
+#minimizeButton:hover, #maximizeButton:hover, #exitButton:hover {
+    color:white
+}
+#exitButton:hover {
+    background-color: rgb(240, 71, 71)
+}
+.mangaColumn {
+    background-color: rgb(47, 49, 54);
+    overflow-y:auto;
+    padding-right:0;}
+.mangaColumn li:hover:not(.header), .pendingColumn li:hover:not(.header) {
+    background-color: #eee;
+}
+.pendingColumn {
+    background-color:rgb(72, 75, 81);
+    overflow-y:auto;
+    padding-left: 0
+}
+#Mangalist, #Pendinglist {
+    padding-left: 0;
+    list-style-type: none;
+    margin: 0;
+    background-color: rgb(47, 49, 54);
+    color: rgb(114, 118, 125);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#Pendinglist {
+    overflow-x:hidden;
+    word-wrap:break-word
+}
+#mangaInput, #pendingInput {
+    width:100%;
+    padding-right: 0%;
+    background-color: rgb(72, 75, 81);
+    border-color: rgb(72, 75, 81);
+    border:0px;
+    color: rgb(179, 180, 183);}
+#mangaInput:focus, #pendingInput:focus {
+    outline: none
+}
+
+

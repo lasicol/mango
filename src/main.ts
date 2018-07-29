@@ -14,6 +14,7 @@ var library = new JsonReader(fs, jsonpath).openJson();
 
 //SET ENV
 process.env.NODE_ENV = 'DEBUG'
+//Initialize windows vars
 let mainWindow :any;
 let addWindow :any;
 //Listen for app to be ready
@@ -50,11 +51,6 @@ app.on('ready', function(){
     //Insert menu
     Menu.setApplicationMenu(mainMenu);
 
-    
-    //global shortcut
-    globalShortcut.register('Control+D', () => {
-        mainWindow.webContents.send('lib:load', library);
-    })
 });
 
 
@@ -66,11 +62,14 @@ ipcMain.on('mainhtml:ready', () => {
 
 // Handle create add window
 function createAddWindow(){
-    //Create new window, pass empty boject
+    //Create new window
     addWindow = new BrowserWindow({
         width: 320,
-        height: 300,
-        title: 'Add Manga'
+        minWidth: 320,
+        height: 246,
+        minHeight: 246,
+        title: 'Add Manga',
+        frame: false
     });
     
     //Load html info window
@@ -86,10 +85,13 @@ function createAddWindow(){
 }
 
 // Catch item:add
-ipcMain.on('item:add', function(e: any, item :any){
-    mainWindow.webContents.send('item:add', item);
+ipcMain.on('manga:add', function(e: any, array :any){
+    mainWindow.webContents.send('manga:add', array);
     addWindow.close();
 })
+
+ipcMain.on('create:addWindow', createAddWindow)
+
 //Create menu template
 const mainMenuTemplate = [
     {
@@ -117,12 +119,6 @@ const mainMenuTemplate = [
         ]
     }
 ];
-
-//If Mac, add empty object to menu
-// if(process.platform == 'darwin'){
-//     //adding element to the beginning of the list
-//     mainMenuTemplate.unshift({});
-// }
 
 //Add developer tools item if not in prod
 if(process.env.NODE_ENV !== 'production'){

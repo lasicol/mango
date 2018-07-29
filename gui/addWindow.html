@@ -3,39 +3,75 @@
     <head>
         <title>Add Manga</title>
         <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
-        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css"> -->
     </head>
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+        #titleBar {
+            background-color: rgb(32, 34, 37);
+            color: rgb(114, 118, 125);
+            font-weight:bold;
+            -webkit-app-region: drag
+        }
+        .button {
+            padding-left: 6px
+        }
+        #minimizeButton:hover, #maximizeButton:hover, #exitButton:hover {
+            color:white
+        }
+        #exitButton:hover {
+            background-color: rgb(240, 71, 71)
+        }
+        .inputBox {
+            background-color: rgb(72, 75, 81);
+            border-color: rgb(72, 75, 81);
+            border:0px;
+            color: rgb(179, 180, 183);
+        }
+        .inputBox:focus {
+            outline: none
+        }
+    </style>
     <body>
         <!-- <div class="container"> -->
+            <div id="titleBar" class="row">
+                <div class="col" style="text-align: center;"><a>Add Manga</a></div>
+                    <div class="row" style="-webkit-app-region: no-drag; user-select: none">
+                        <div id="minimizeButton" class="col-1 button">__</div>
+                        <div id="maximizeButton" class="col-1 button">□</div>
+                        <div id="exitButton" class="col-1 button">X</div>
+                </div>
+            </div>
             <form>
-                <div class="container">
+                <div class="container" style="background-color: rgb(47, 49, 54); color: rgb(114, 118, 125)">
                     <div class="row">
                         <div class="col"><label>Title</label></div>
-                        <div class="col"><input type="text" id="title" autofocus></div>
+                        <div class="col"><input type="text" id="title" class="inputBox" autofocus></div>
                     </div>
                     <div class="row">
                         <div class="col"><label>Volume</label></div>
-                        <div class="col"><input type="text" id="volume"></div>
+                        <div class="col"><input type="text" id="volume" class="inputBox"></div>
                     </div>
                     <div class="row">
                         <div class="col"><label>Chapter</label></div>
-                        <div class="col"><input type="text" id="chapter"></div>
+                        <div class="col"><input type="text" id="chapter" class="inputBox"></div>
                     </div>
                     <div class="row">
                         <div class="col"><label>Status</label></div>
-                        <div class="col"><input type="text" id="status"></div>
+                        <div class="col"><input type="text" id="status" class="inputBox"></div>
                     </div>
                     <div class="row">
                         <div class="col"><label>Author</label></div>
-                        <div class="col"><input type="text" id="status"></div>
+                        <div class="col"><input type="text" id="author" class="inputBox"></div>
                     </div>
                     <div class="row">
                         <div class="col"><label>Notes</label></div>
-                        <div class="col"><input type="text" id="notes"></div>
+                        <div class="col"><input type="text" id="notes" class="inputBox"></div>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <button class="btn waves-effect orange darken-2" type="submit">Add manga</button>
+                            <button  type="submit">Add manga</button>
                         </div>
                     </div>
                 </div>
@@ -51,8 +87,13 @@
             function submitForm(e){
                 //to stop the event from submitting to a file
                 e.preventDefault();
-                const item = document.querySelector('#title').value;
-                ipcRenderer.send('item:add', item);
+                const title = document.querySelector('#title').value;
+                const volume = document.querySelector('#volume').value;
+                const chapter = document.querySelector('#chapter').value;
+                const status = document.querySelector('#status').value;
+                const author = document.querySelector('#author').value;
+                const notes = document.querySelector('#notes').value;
+                ipcRenderer.send('manga:add', [title, volume, chapter, status, author, notes]);
             }
         </script>
     </body>

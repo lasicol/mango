@@ -27,36 +27,26 @@ var pendingList = []
 var selectedManga = []
 
 //Add item
-ipcRenderer.on('item:add', function(e, item){
-    item = item.toLowerCase()
-    if (item) {
-        mangaListHtml.className = 'collection';
-        const li = document.createElement('li');
-        li.className = 'collection-item';
-        const itemText = document.createTextNode(item);
-        li.appendChild(itemText);
-
-        //find index to insert element to maintain alphabetical order
-        list = mangaListHtml.children
-        i = 0
-        element = list[0]
-        while (element && element.innerHTML < item){
-            element = list[++i]
+ipcRenderer.on('manga:add', function(e, arrayItems){
+    newManga = new manga.manga(arrayItems[0], arrayItems[1], arrayItems[2], arrayItems[3], arrayItems[4], arrayItems[5])
+    if (newManga.title) {
+        var i
+        for (i = 0; i < mangaList.length; i++){
+            if (mangaList[i].title.toLowerCase() > newManga.title.toLowerCase()){
+                break
+            }
         }
-        if (element){
-            mangaListHtml.insertBefore(li, element)
+        if (i >= mangaList.length){
+            insertLi(newManga.toString(), -1, 'collection-item', newManga.id, mangaListHtml)
+            mangaList.push(newManga)
         }
         else{
-            mangaListHtml.appendChild(li)
+            insertLi(newManga.toString(), i, 'collection-item', newManga.id, mangaListHtml)
+            mangaList.splice(i, 0, newManga)
         }
     }
 });
-//Clear items
-ipcRenderer.on('item:clear', function(){
-    mangaListHtml.innerHTML = '';
-    mangaListHtml.className = '';
-});
-//load library to main window
+//load and render library in main window
 ipcRenderer.on('lib:load', (event, library) => {
     loadLibrary(library)
     showLeftList(mangaList)
@@ -74,33 +64,37 @@ function loadLibrary(library){
 }
 
 function showLeftList(itemList){
-    var li; var itemText;
-    mangaListHtml.className = 'collection';
+    //mangaListHtml.className = 'collection';
     itemList.forEach((element) => {
-        createLi(element.toString(), 'collection-item', element.id, mangaListHtml)
-    })   
-}
-
-function showRightList(itemList){
-    var li; var itemText;
-    itemList.forEach((element) => {
-        createLi(linkToTitle(element), 'collection-item', 'pending-item', pendingListHtml)
+        insertLi(element.toString(), -1, 'collection-item', element.id, mangaListHtml)
     })
 }
 
-function createLi(text, className, id, targetHtmlObject){
-    itemText = document.createTextNode(text);
+function showRightList(itemList){
+    itemList.forEach((element) => {
+        insertLi(linkToTitle(element), -1, 'collection-item', 'pending-item', pendingListHtml)
+    })
+}
+
+function insertLi(text, index, className, id, targetHtmlObject){
+    var itemText = document.createTextNode(text);
     var li = document.createElement('li');
     li.className = className;
     li.id = id
     li.appendChild(itemText);
-    targetHtmlObject.appendChild(li)
+    if (index > -1){
+        targetHtmlObject.insertBefore(li, targetHtmlObject.children[index])
+    }
+    else{
+        targetHtmlObject.appendChild(li)
+    }
 }
 
 function linkToTitle(link){
-    return link.replace("http://", "").replace("www.mangago.me/read-manga/", "").replace("_", " ").replace("/", " ")
-    //change to use regular expresion
+    //deletes http and page main link, replaces _ and / with spaces
+    return link.replace(/((http:\/\/)|(www\.mangago\.me\/read-manga\/))/g, "").replace(/_|\//g, " ")
 }
+
 // ================================================
 // ----- maintain layout during maximize/resize----
 ipcRenderer.on('resize', (e, windowHeight) => {
@@ -173,18 +167,20 @@ function findById(array, id){
 }
 
 //Remove item from left column
-//mangaListHtml.addEventListener('dblclick', removeItem);
+// mangaListHtml.addEventListener('dblclick', (event) => {
+//     removeItem(event, mangaList, mangaListHtml)
+// });
 
-function removeItem(event){
+function removeItem(event, list, htmlList){
     elementHtml = event.target
-    var index = findById(mangaList, elementHtml.id)
+    var index = findById(list, elementHtml.id)
     if (index > -1){
         elementHtml.remove()
-        mangaList.splice(index, 1)
+        list.splice(index, 1)
     }
     
-    if(mangaListHtml.children.length == 0){
-        mangaListHtml.className = '';
+    if(htmlList.children.length == 0){
+        htmlList.className = '';
     }
 }
 function editItem(event){
@@ -194,10 +190,27 @@ function editItem(event){
 
 function FilterManga(){
     var text = document.getElementById("mangaInput").value
-    var filtered = mangaList.filter(element => element.toString().toLowerCase().includes(text))
-    mangaListHtml.innerHTML = ''
-    showLeftList(filtered)
+    if (text){
+        var filtered = mangaList.filter(element => element.toString().toLowerCase().includes(text))
+        mangaListHtml.innerHTML = ''
+        showLeftList(filtered)
+    }
+    
 }
+//add items to left column
+document.getElementById("mangaInput").addEventListener('keyup', (event) => {
+    var input = document.getElementById("mangaInput")
+    var text = input.value
+    if (event.key == "Enter" && text != ""){
+        var similarMangas = mangaList.filter(element => element.toString().toLowerCase().includes(text))
+        if (similarMangas.length > 0){
+            console.log(similarMangas.length + ' duplicates found')
+        }
+        mangaListHtml.innerHTML = ''
+        showLeftList(mangaList)
+        ipcRenderer.send('create:addWindow')
+    }
+})
 
 //add items to right column
 document.getElementById("pendingInput").addEventListener('keyup', (event) => {
