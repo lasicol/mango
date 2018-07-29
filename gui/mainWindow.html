@@ -28,14 +28,35 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col" style="color: rgb(179, 180, 183)"><center>Stats</center></div>
+                        <div class="col" style="color: rgb(179, 180, 183)">
+                            <center>
+                                <div>Stats</div>
+                                <div class="row">
+                                    <div class="col">Ongoing</div>
+                                    <div id="ongoingStat" class="col"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">Complete</div>
+                                    <div id="completeStat" class="col"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">All</div>
+                                    <div id="allStat" class="col"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">Pending</div>
+                                    <div id="pendingStat" class="col"></div>
+                                </div>
+                            </center>
+                            
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-7 mangaEntryField" style="padding-right: 0">
                     <!-- change to not react when backspace or delete is hit on empty inputbox -->
-                    <input type="text" id="mangaInput" onkeyup="FilterManga()" placeholder="Search for titles...">
+                    <input type="text" id="mangaInput" placeholder="Search for titles...">
                 </div>
                 <div class="col-5", style="background-color: rgb(72, 75, 81)"></div> 
             </div>

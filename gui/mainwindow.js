@@ -51,6 +51,7 @@ ipcRenderer.on('lib:load', (event, library) => {
     loadLibrary(library)
     showLeftList(mangaList)
     showRightList(pendingList)
+    initializeStats()
 });
 
 function loadLibrary(library){
@@ -109,24 +110,6 @@ ipcRenderer.on('maximize', (e, windowHeight) => {
 })
 // ================================================
 
-
-mangaListHtml.addEventListener('mousedown', (event) => {
-    var element = event.target
-    if (event.ctrlKey){
-        
-        selectedManga.push(element.id)
-    }
-    else{
-        selectedManga.forEach( (id) => {
-            document.getElementById(id).style.color = ''
-        })
-        selectedManga = [element.id]
-    }
-    document.getElementById(element.id).style.color = 'red'
-    console.log(selectedManga)
-});
-
-
 // =============================================================================
 // ---------------------- add app contextmenu ----------------------------------
 window.addEventListener('contextmenu', (event) => {
@@ -157,6 +140,23 @@ document.getElementById('exitButton').addEventListener('click', (event) => {
 // =============================================================================
 
 
+mangaListHtml.addEventListener('mousedown', (event) => {
+    var element = event.target
+    if (event.ctrlKey){
+        
+        selectedManga.push(element.id)
+    }
+    else{
+        selectedManga.forEach( (id) => {
+            document.getElementById(id).style.color = ''
+        })
+        selectedManga = [element.id]
+    }
+    document.getElementById(element.id).style.color = 'red'
+    console.log(selectedManga)
+});
+
+
 function findById(array, id){
     for (var i = 0; i < array.length; i++){
         if (array[i].id == id){
@@ -168,20 +168,19 @@ function findById(array, id){
 
 //Remove item from left column
 // mangaListHtml.addEventListener('dblclick', (event) => {
-//     removeItem(event, mangaList, mangaListHtml)
+//     removeItem(event.target, mangaList, mangaListHtml)
 // });
 
-function removeItem(event, list, htmlList){
-    elementHtml = event.target
-    var index = findById(list, elementHtml.id)
+function removeItem(item, list, htmlList){
+    var index = findById(list, item.id)
     if (index > -1){
-        elementHtml.remove()
+        item.remove()
         list.splice(index, 1)
     }
     
-    if(htmlList.children.length == 0){
-        htmlList.className = '';
-    }
+    //if(htmlList.children.length == 0){
+    //    htmlList.className = '';
+    //}
 }
 function editItem(event){
 
@@ -190,17 +189,21 @@ function editItem(event){
 
 function FilterManga(){
     var text = document.getElementById("mangaInput").value
-    if (text){
-        var filtered = mangaList.filter(element => element.toString().toLowerCase().includes(text))
+    //if (text && document.getElementById('')){
+        var filtered = mangaList.filter(element => element.toString().toLowerCase().includes(text.toLowerCase()))
         mangaListHtml.innerHTML = ''
         showLeftList(filtered)
-    }
+    //}
     
 }
 //add items to left column
 document.getElementById("mangaInput").addEventListener('keyup', (event) => {
     var input = document.getElementById("mangaInput")
     var text = input.value
+    //to avoid rerendering the whole list each time user press backspace or delete on already empty input box
+    if ((event.key != 'Backspace' && event.key != 'Delete') || text != "" || mangaList.length != mangaListHtml.children.length){
+        FilterManga()
+    }
     if (event.key == "Enter" && text != ""){
         var similarMangas = mangaList.filter(element => element.toString().toLowerCase().includes(text))
         if (similarMangas.length > 0){
@@ -218,9 +221,33 @@ document.getElementById("pendingInput").addEventListener('keyup', (event) => {
     var text = input.value
     if (event.key == "Enter" && text != ""){
         pendingList.push(text)
-        createLi(linkToTitle(text), 'collection-item', 'pending-item', pendingListHtml)
+        insertLi(linkToTitle(text), -1, 'collection-item', 'pending-item', pendingListHtml)
         input.value = ''
     }
 })
+
+//update statistics
+function initializeStats(){
+    var ongoing = 0
+    var complete = 0
+    mangaList.forEach( (item) => {
+        if (item.status == 'ongoing'){
+            ongoing++
+        }
+        else if (item.status == 'complete'){
+            complete++
+        }
+    })
+    document.getElementById('ongoingStat').textContent = ongoing
+    document.getElementById('completeStat').textContent = complete
+    document.getElementById('pendingStat').textContent = pendingList.length
+    if (ongoing+complete != mangaList.length){
+        document.getElementById('allStat').textContent = 'Error, all: ' + mangaList.length + ' while ongoing+complete= ' + (ongoing+complete)
+    }
+    else{
+        document.getElementById('allStat').textContent  = mangaList.length
+    }
+}
+
 //Informs ipcMain that html is loaded
 ipcRenderer.send('mainhtml:ready')
