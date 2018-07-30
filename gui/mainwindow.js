@@ -3,6 +3,8 @@ const {ipcRenderer, remote} = electron;
 const {Menu, MenuItem} = remote
 const path = require('path');
 const uniqid = require('uniqid');
+const CManga = require('./manga');
+// let inst = new manga();
 const manga = require(path.join(__dirname, "../gui/manga.js"))
 //const ul = document.querySelector('ul');
 const mangaListHtml = document.getElementById('Mangalist');
@@ -27,7 +29,7 @@ var selectedManga = []
 
 //Add item
 ipcRenderer.on('manga:add', function(e, arrayItems){
-    newManga = new manga.manga(arrayItems[0], arrayItems[1], arrayItems[2], arrayItems[3], arrayItems[4], arrayItems[5])
+    newManga = new CManga(arrayItems[0], arrayItems[1], arrayItems[2], arrayItems[3], arrayItems[4], arrayItems[5])
     if (newManga.title) {
         var i
         for (i = 0; i < mangaList.length; i++){
@@ -55,7 +57,7 @@ ipcRenderer.on('lib:load', (event, library) => {
 
 function loadLibrary(library){
     library.lib.forEach((element) => {
-        mangaItem = new manga.manga(element.title, element.volume, element.chapter, element.status, element.author, element.notes)
+        mangaItem = new CManga(element.title, element.volume, element.chapter, element.status, element.author, element.notes)
         mangaList.push(mangaItem)
     })
     library.pending.forEach((element) => {
