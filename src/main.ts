@@ -46,10 +46,12 @@ app.on('ready', function(){
         mainWindow.webContents.send('maximize', height);
     })
 
-    //Build menu from template
-    const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    //Insert menu
-    Menu.setApplicationMenu(mainMenu);
+
+    //Open developer tools item for focused window
+    globalShortcut.register('CommandOrControl+I', () => {
+        BrowserWindow.getFocusedWindow().toggleDevTools()
+    })
+    
 
 });
 
@@ -68,6 +70,7 @@ function createAddWindow(){
         minWidth: 320,
         height: 246,
         minHeight: 246,
+        maxHeight: 246,
         title: 'Add Manga',
         frame: false
     });
@@ -90,52 +93,9 @@ ipcMain.on('manga:add', function(e: any, array :any){
     addWindow.close();
 })
 
-ipcMain.on('create:addWindow', createAddWindow)
-
-//Create menu template
-const mainMenuTemplate = [
-    {
-        label: 'File', 
-        submenu: [
-            {
-                label: "Add Item",
-                click(){
-                    createAddWindow();
-                }
-            },
-            {
-                label: 'Clear Items',
-                click(){
-                    mainWindow.webContents.send('item:clear');
-                }
-            },
-            {
-                label: 'Quit',
-                accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
-                click(){
-                    app.quit();
-                }
-            }
-        ]
-    }
-];
-
-//Add developer tools item if not in prod
-if(process.env.NODE_ENV !== 'production'){
-    let obj : any = {
-        label: 'Developer Tools',
-        submenu:[
-            {
-                label: 'Toggle DevTools',
-                accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
-                click(item: any, focusedWindow: any){
-                    focusedWindow.toggleDevTools();
-                }
-            },
-            {
-                role: 'reload'
-            }
-        ]
-    }
-    mainMenuTemplate.push(obj)
-}
+ipcMain.on('create:addWindow', (event: any, text: string) => {
+    createAddWindow()
+    ipcMain.on('addWindow:ready', (event: any) => {
+        addWindow.webContents.send('init:title', text)
+    })
+})

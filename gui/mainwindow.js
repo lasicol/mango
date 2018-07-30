@@ -16,7 +16,6 @@ mangaMenu.append(new MenuItem({label: 'Copy Title', click() {console.log('Copy')
 mangaMenu.append(new MenuItem({type: 'separator'}))
 mangaMenu.append(new MenuItem({label: 'Delete Entry', click() {console.log('Delete')}}))
 const pendingMenu = new Menu()
-pendingMenu.append(new MenuItem({label: 'Add Pending', click() {console.log('Add') }}))
 pendingMenu.append(new MenuItem({label: 'Copy Link', click() {console.log('Copy') }}))
 pendingMenu.append(new MenuItem({type: 'separator'}))
 pendingMenu.append(new MenuItem({label: 'Delete Entry', click() {console.log('Delete')}}))
@@ -207,11 +206,15 @@ document.getElementById("mangaInput").addEventListener('keyup', (event) => {
     if (event.key == "Enter" && text != ""){
         var similarMangas = mangaList.filter(element => element.toString().toLowerCase().includes(text))
         if (similarMangas.length > 0){
-            console.log(similarMangas.length + ' duplicates found')
+            let ans = confirm(similarMangas.length + ' duplicates found, do you want to add this title anyway?')
+            if (ans == false){
+                return
+            }
         }
         mangaListHtml.innerHTML = ''
         showLeftList(mangaList)
-        ipcRenderer.send('create:addWindow')
+        ipcRenderer.send('create:addWindow', text)
+        text = ''
     }
 })
 

@@ -20,7 +20,10 @@ body {
     -webkit-app-region: drag
 }
 .button {
-    padding-left: 6px
+    padding-left: 6px;
+}
+.button:hover {
+    cursor: pointer;
 }
 #minimizeButton:hover, #maximizeButton:hover, #exitButton:hover {
     color:white
@@ -31,14 +34,17 @@ body {
 .mangaColumn {
     background-color: rgb(47, 49, 54);
     overflow-y:auto;
-    padding-right:0;}
+    padding-right:0;
+    cursor: context-menu
+}
 .mangaColumn li:hover:not(.header), .pendingColumn li:hover:not(.header) {
     background-color: #eee;
 }
 .pendingColumn {
     background-color:rgb(72, 75, 81);
     overflow-y:auto;
-    padding-left: 0
+    padding-left: 0;
+    cursor: context-menu
 }
 #Mangalist, #Pendinglist {
     padding-left: 0;

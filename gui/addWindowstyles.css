@@ -1,0 +1,41 @@
+body {
+    overflow-x: hidden;
+}
+.dataRow {
+    background-color: rgb(47, 49, 54);
+    color: rgb(114, 118, 125)
+}
+#titleBar {
+    background-color: rgb(32, 34, 37);
+    color: rgb(114, 118, 125);
+    font-weight:bold;
+    -webkit-app-region: drag
+}
+.button {
+    padding-left: 6px
+}
+.button:hover {
+    cursor: pointer;
+}
+#minimizeButton:hover, #maximizeButton:hover, #exitButton:hover {
+    color:white
+}
+#exitButton:hover {
+    background-color: rgb(240, 71, 71)
+}
+.inputBox {
+    background-color: rgb(72, 75, 81);
+    border-color: rgb(72, 75, 81);
+    border:0px;
+    color: rgb(179, 180, 183);
+}
+.inputBox:focus {
+    outline: none
+}
+#title, #volume, #chapter, #status, #author, #notes {
+    width: 100%
+
+}
+.label {
+    max-width: 100px
+}
