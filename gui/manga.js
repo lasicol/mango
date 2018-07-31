@@ -1,5 +1,5 @@
 //exports.__esModule = true;
-module.exports = class CManga {
+module.exports = class Manga {
     constructor(title, volume, chapter, status, author, notes){
         this.title = title
         this.volume = volume
