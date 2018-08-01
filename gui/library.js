@@ -6,7 +6,7 @@ module.exports = class Library {
         this.pendingList = []
         this.mangaSelection = []
         this.pendingSelection = ''
-        this.trashCan = []
+        this.trashCan = [] //indexes of elements to delete
         this.ongoing = 0
         this.complete = 0
         this.all = 0
@@ -77,34 +77,29 @@ module.exports = class Library {
         return -1
     }
 
-    removeFromLeftList(item, list){
-        var index = this.findById(list, item.id)
+    removeFromLeftList(id){
+        //item is a html object
+        var index = this.findById(this.mangaList, id)
         if (index > -1){
-            item.remove()
-            list.splice(index, 1)
+            let item = this.document.getElementById(id)
+            if(item){
+                item.remove()
+            }
+            this.mangaList.splice(index, 1)
         }
     }
     editItem(event){
         //to do
     }
-    addToLeftList(e, arrayItems){
-        var newManga = new Manga(arrayItems[0], arrayItems[1], arrayItems[2], arrayItems[3], arrayItems[4], arrayItems[5])
-        if (newManga.title) {
-            var i
-            for (i = 0; i < this.mangaList.length; i++){
-                if (this.mangaList[i].title.toLowerCase() > newManga.title.toLowerCase()){
-                    break
-                }
-            }
-            if (i >= this.mangaList.length){
-                this.insertLi(newManga.toString(), -1, 'collection-item', newManga.id, this.document.getElementById('Mangalist'))
-                this.mangaList.push(newManga)
-            }
-            else{
-                this.insertLi(newManga.toString(), i, 'collection-item', newManga.id, this.document.getElementById('Mangalist'))
-                this.mangaList.splice(i, 0, newManga)
+    addToLeftList(newManga){
+        var i
+        for (i = 0; i < this.mangaList.length; i++){
+            if (this.mangaList[i].title.toLowerCase() > newManga.title.toLowerCase()){
+                break
             }
         }
+        this.insertLi(newManga.toString(), i, 'collection-item', newManga.id, this.document.getElementById('Mangalist'))
+        this.mangaList.splice(i, 0, newManga)
     };
     
     addToRightList(event){
@@ -131,7 +126,7 @@ module.exports = class Library {
     }
 
     //update statistics
-    initializeStats(){
+    showStats(){
         this.document.getElementById('ongoingStat').textContent = this.ongoing
         this.document.getElementById('completeStat').textContent = this.complete
         this.document.getElementById('pendingStat').textContent = this.pendingList.length

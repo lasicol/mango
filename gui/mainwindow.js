@@ -18,6 +18,9 @@ const pendingMenu = new Menu()
 pendingMenu.append(new MenuItem({label: 'Copy Link', click() {console.log('Copy') }}))
 pendingMenu.append(new MenuItem({type: 'separator'}))
 pendingMenu.append(new MenuItem({label: 'Delete Entry', click() {console.log('Delete')}}))
+const deleteMenu = new Menu()
+deleteMenu.append(new MenuItem({label: 'Empty Trash', click() {emptyTrashCan() }}))
+
 
 var MangaLibrary
 
@@ -27,11 +30,16 @@ ipcRenderer.on('lib:load', (event, data) => {
     MangaLibrary.load()
     MangaLibrary.showLeftList(MangaLibrary.mangaList)
     MangaLibrary.showRightList(MangaLibrary.pendingList)
-    MangaLibrary.initializeStats()   
+    MangaLibrary.showStats()   
 });
 
 //Add item to left list (manga) from addWindow
-ipcRenderer.on('manga:add', (e, arrayItems) => MangaLibrary.addToLeftList(e, arrayItems))
+ipcRenderer.on('manga:add', (e, arrayItems) => {
+    if (arrayItems[0]){
+        let newManga = new Manga(arrayItems[0], arrayItems[1], arrayItems[2], arrayItems[3], arrayItems[4], arrayItems[5])
+        MangaLibrary.addToLeftList(newManga)
+    }
+})
 
 //add item to right list (pending)
 document.getElementById("pendingInput").addEventListener('keyup', (event) => {
@@ -54,10 +62,10 @@ ipcRenderer.on('maximize', (e, windowHeight) => {
 // ---------------- show app contextmenu/select item----------------------------
 window.addEventListener('contextmenu', (event) => {
     event.preventDefault()
-    if (event.target.id.substring(0, 6) == 'manga-'){
+    if (event.target.id.substring(0, 6) == 'manga-' || event.target.className == 'col-7 mangaColumn'){
         MangaLibrary.mangaSelection = []
         MangaLibrary.mangaSelection.push(event.target.id)
-        console.log(MangaLibrary.mangaSelection)
+        //console.log(MangaLibrary.mangaSelection)
 
         mangaMenu.popup({window: remote.getCurrentWindow()})
     }else if (event.target.id.substring(0, 8) == 'pending-'){
@@ -65,7 +73,9 @@ window.addEventListener('contextmenu', (event) => {
         console.log(MangaLibrary.pendingSelection)
 
         pendingMenu.popup({window: remote.getCurrentWindow()})
-    }
+    }else if (event.target.id.substring(0, 8) == 'deleted-' || event.target.id  == 'rightColumnDeleteMode'){
+        deleteMenu.popup({window: remote.getCurrentWindow()})
+}
 }, false)
 // =============================================================================
 
@@ -86,7 +96,7 @@ document.getElementById('exitButton').addEventListener('click', (event) => {
 
 //Remove item from left column
 // document.getElementById('Mangalist').addEventListener('dblclick', (event) => {
-//     MangaLibrary.removeFromLeftList(event.target)
+//     MangaLibrary.removeFromLeftList(event.target.id)
 // });
 
 
@@ -118,7 +128,6 @@ document.getElementById("mangaInput").addEventListener('keyup', (event) => {
 function deleteItems(event){
     var element = event.target
     if (event.ctrlKey){
-        
         MangaLibrary.selectedManga.push(element.id)
     }
     else{
@@ -131,31 +140,38 @@ function deleteItems(event){
     console.log(MangaLibrary.selectedManga)
 };
 
+function emptyTrashCan(){
+    if (MangaLibrary.trashCan){
+        MangaLibrary.trashCan.forEach( (item) => {
+            MangaLibrary.removeFromLeftList(item.id)
+        })
+        MangaLibrary.trashCan = null
+        MangaLibrary.document.getElementById('Trashlist').innerHTML = ''
+    }
+}
 
-//grubo i duze problemy
+
 function moveToTrash(event){
     var id = event.target.id
-    if (id.substring(0, 6) == 'manga-'){
-        event.target.remove()
-        var index = MangaLibrary.findById(MangaLibrary.mangaList, id)
-        var item = MangaLibrary.mangaList[index]
-        MangaLibrary.insertLi(item.toString(), -1, 'collection-item', 'deleted-'+id, document.getElementById('rightColumnDeleteMode'))
-        MangaLibrary.trashCan.push(item)
-    }
-    else if (id.substring(0, 8) == 'deleted-'){
-        var index = MangaLibrary.findById(MangaLibrary.trashCan, id)
-        var item = MangaLibrary.trashCan[index]
-        console.log(item)
-        //delete 'delete-' from id
-        var i
-        for (i = 0; i < MangaLibrary.mangaList.length; i++){
-            if (MangaLibrary.mangaList[i].title.toLowerCase() > item.toLowerCase()){
-                break
-            }
-        }
-        this.insertLi(item.toString(), i, 'collection-item', id, MangaLibrary.document.getElementById('Mangalist'))
-    }
+    event.target.remove()
+    var index = MangaLibrary.findById(MangaLibrary.mangaList, id)
+    var item = MangaLibrary.mangaList[index]
+    MangaLibrary.insertLi(item.toString(), -1, 'collection-item', 'deleted-'+id, document.getElementById('Trashlist'))
+    MangaLibrary.trashCan.push(item)
+}
 
+function moveFromTrash(event){
+    var id = event.target.id.substr(8)
+    event.target.remove()
+    var index = MangaLibrary.findById(MangaLibrary.trashCan, id)
+    var item = MangaLibrary.trashCan[index]
+    var i
+    for (i = 0; i < MangaLibrary.mangaList.length; i++){
+        if (MangaLibrary.document.getElementById('Mangalist').children[i].textContent.toLowerCase() > item.title.toLowerCase()){
+            break
+        }
+    }
+    MangaLibrary.insertLi(item.toString(), i, 'collection-item', id, MangaLibrary.document.getElementById('Mangalist'))
 }
 
 function toggleDeleteMode(event){
@@ -163,16 +179,18 @@ function toggleDeleteMode(event){
         document.getElementById('titleBar').style.backgroundColor = 'rgb(237, 33, 33)'
         document.getElementById('rightColumn').style.display = 'none'
         document.getElementById('rightColumnDeleteMode').style.display = 'block'
-
-        window.addEventListener('mousedown', moveToTrash)
-
+        document.getElementById('Mangalist').addEventListener('dblclick', moveToTrash)
+        document.getElementById('Trashlist').addEventListener('dblclick', moveFromTrash)
     }
     else{
         document.getElementById('titleBar').style.backgroundColor = 'rgb(32, 34, 37)'
         document.getElementById('rightColumn').style.display = 'block'
         document.getElementById('rightColumnDeleteMode').style.display = 'none'
-
-        window.removeEventListener('mousedown', moveToTrash)
+        document.getElementById('Mangalist').removeEventListener('dblclick', moveToTrash)
+        document.getElementById('Trashlist').removeEventListener('dblclick', moveFromTrash)
+        MangaLibrary.trashCan = []
+        MangaLibrary.document.getElementById('Mangalist').innerHTML = ''
+        MangaLibrary.showLeftList(MangaLibrary.mangaList)
     }
 }
 

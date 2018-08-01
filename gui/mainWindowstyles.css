@@ -31,6 +31,7 @@ body {
 #exitButton:hover {
     background-color: rgb(240, 71, 71)
 }
+
 .mangaColumn {
     background-color: rgb(47, 49, 54);
     overflow-y:auto;
@@ -43,10 +44,19 @@ body {
 .pendingColumn {
     background-color:rgb(72, 75, 81);
     overflow-y:auto;
+    overflow-x:hidden;
     padding-left: 0;
-    cursor: context-menu
+    cursor: context-menu;
+    padding-right: 0px
+    /*  */
 }
-#Mangalist, #Pendinglist, #Trashlist {
+#secondRow {
+    padding-right: 14px
+}
+.pendingEntryField{
+    padding-right: 20px;
+}
+#Mangalist, #Pendinglist{
     padding-left: 0;
     list-style-type: none;
     margin: 0;
@@ -59,9 +69,27 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
+#Trashlist {
+    padding-left: 0;
+    padding-right: 20px;
+    list-style-type: none;
+    margin: 0;
+    color: rgb(167, 174, 187);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 #Pendinglist {
     overflow-x:hidden;
     word-wrap:break-word
+}
+#rightColumnDeleteMode {
+    display: none;
+    color: rgb(167, 174, 187);
+    overflow-y: auto;
 }
 #mangaInput, #pendingInput {
     width:100%;
