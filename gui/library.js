@@ -29,28 +29,25 @@ module.exports = class Library {
         this.countStats()
     }
 
-    showLeftList(itemList){
-        //mangaListHtml.className = 'collection';
+    showList(textFunction, itemList, htmlList){
         itemList.forEach((element) => {
-            this.insertLi(element.toString(), -1, 'collection-item', element.id, this.document.getElementById('Mangalist'))
-        })
-    }
-
-    showRightList(itemList){
-        itemList.forEach((element) => {
-            this.insertLi(element.text, -1, 'collection-item', element.id, this.document.getElementById('Pendinglist'))
+            this.insertLi(textFunction(element), -1, 'collection-item', element.id, htmlList)
         })
     }
 
     countStats(){
+        var ongoing = 0
+        var complete = 0
         this.mangaList.forEach( (item) => {
             if (item.status == 'ongoing'){
-                this.ongoing++
+                ongoing++
             }
             else if (item.status == 'complete'){
-                this.complete++
+                complete++
             }
         })
+        this.ongoing = ongoing
+        this.complete = complete
         this.all = this.mangaList.length
         this.pending = this.pendingList.length
     }
@@ -76,9 +73,8 @@ module.exports = class Library {
         }
         return -1
     }
-
+    //change to work on both lists
     removeFromLeftList(id){
-        //item is a html object
         var index = this.findById(this.mangaList, id)
         if (index > -1){
             let item = this.document.getElementById(id)
@@ -102,27 +98,23 @@ module.exports = class Library {
         this.mangaList.splice(i, 0, newManga)
     };
     
-    addToRightList(event){
-        var text = this.document.getElementById("pendingInput").value
-        if (event.key == "Enter" && text != ""){
-            let newPending = {
-                link: text,
-                id: uniqid('pending-')
-            }
-            this.pendingList.push(newPending)
-            this.insertLi(this.linkToTitle(text), -1, 'collection-item', newPending.id, this.document.getElementById('Pendinglist'))
-            this.document.getElementById("pendingInput").value = ''
+    addToRightList(newLink){
+        let newPending = {
+            link: newLink,
+            id: uniqid('pending-')
         }
+        this.insertLi(this.linkToTitle(newLink), -1, 'collection-item', newPending.id, this.document.getElementById('Pendinglist'))
+        this.pendingList.push(newPending)
     }
     linkToTitle(link){
         //deletes http and page main link, replaces _ and / with spaces
-            return link.replace(/((http:\/\/)|(www\.mangago\.me\/read-manga\/))/g, "").replace(/_|\//g, " ")
+        return link.replace(/((http:\/\/)|(www\.mangago\.me\/read-manga\/))/g, "").replace(/_|\//g, " ")
     }
 
     FilterLeftList(text){
         var filtered = this.mangaList.filter(element => element.toString().toLowerCase().includes(text.toLowerCase()))
         this.document.getElementById('Mangalist').innerHTML = ''
-        this.showLeftList(filtered, this.document.getElementById('Mangalist'))
+        this.showList( (x) =>  x.toString(), filtered, this.document.getElementById('Mangalist'))
     }
 
     //update statistics
