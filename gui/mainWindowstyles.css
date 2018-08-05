@@ -1,5 +1,6 @@
 body {
     overflow-x: hidden;
+    background-color:rgb(72, 75, 81);
 }
 /* ::-webkit-scrollbar {width: 0px; background: transparent;} */
 ::-webkit-scrollbar {

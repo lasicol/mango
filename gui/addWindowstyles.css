@@ -23,18 +23,17 @@ body {
 #exitButton:hover {
     background-color: rgb(240, 71, 71)
 }
-.inputBox {
+.inputBox, #status {
     background-color: rgb(72, 75, 81);
     border-color: rgb(72, 75, 81);
     border:0px;
     color: rgb(179, 180, 183);
 }
-.inputBox:focus {
+.inputBox:focus, #status:focus {
     outline: none
 }
 #title, #volume, #chapter, #status, #author, #notes {
     width: 100%
-
 }
 .label {
     max-width: 100px

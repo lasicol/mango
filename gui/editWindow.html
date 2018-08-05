@@ -9,7 +9,7 @@
     <body>
         <!-- <div class="container"> -->
             <div id="titleBar" class="row">
-                <div class="col" style="text-align: center;"><a>Add Manga</a></div>
+                <div class="col" style="text-align: center;"><a>Edit Manga</a></div>
                     <div class="row" style="-webkit-app-region: no-drag; user-select: none; margin-right: -17px">
                         <div id="minimizeButton" class="col-1 button">__</div>
                         <div id="maximizeButton" class="col-1 button">□</div>
@@ -20,7 +20,7 @@
                 <!-- <div class="container" style="background-color: rgb(47, 49, 54); color: rgb(114, 118, 125)"> -->
                     <div class="row dataRow">
                         <div class="col label"><label>Title</label></div>
-                        <div class="col"><input type="text" id="title" class="inputBox"></div>
+                        <div class="col"><input type="text" id="title" class="inputBox" disabled></div>
                     </div>
                     <div class="row dataRow">
                         <div class="col label"><label>Volume</label></div>
@@ -33,11 +33,11 @@
                     <div class="row dataRow">
                         <div class="col label"><label>Status</label></div>
                         <div class="col">
-                            <select id="status">
-                                <option value="0">Ongoing</option>
-                                <option value="1">Complete</option>
-                            </select>
-                        </div>
+                                <select id="status">
+                                    <option value="ongoing">Ongoing</option>
+                                    <option value="complete">Complete</option>
+                                </select>
+                            </div>
                     </div>
                     <div class="row dataRow">
                         <div class="col label"><label>Author</label></div>
@@ -49,12 +49,12 @@
                     </div>
                     <div class="row dataRow">
                         <div class="col">
-                            <button  type="submit">Add manga</button>
+                            <button  type="submit">Update manga</button>
                         </div>
                     </div>
                 <!-- </div> -->
             </form>
         <!-- </div> -->
-        <script src="./addWindow.js"></script>
+        <script src="./editWindow.js"></script>
     </body>
 </html>

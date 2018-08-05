@@ -4,7 +4,7 @@ module.exports = class Library {
         this.document = document
         this.mangaList = []
         this.pendingList = []
-        this.mangaSelection = []
+        this.mangaSelection = ''
         this.pendingSelection = ''
         this.trashCan = [] //indexes of elements to delete
         this.ongoing = 0
@@ -74,17 +74,28 @@ module.exports = class Library {
         return -1
     }
     //change to work on both lists
-    removeFromLeftList(id){
-        var index = this.findById(this.mangaList, id)
+    removeItem(id, list){
+        var index = this.findById(list, id)
         if (index > -1){
             let item = this.document.getElementById(id)
             if(item){
                 item.remove()
             }
-            this.mangaList.splice(index, 1)
+            list.splice(index, 1)
         }
     }
-    editItem(event){
+    updateItem(id, arrayItems){
+        let index = this.findById(this.mangaList, id)
+        // this.mangaList[index].title = arrayItems[0]
+        this.mangaList[index].volume = arrayItems[1]
+        this.mangaList[index].chapter = arrayItems[2]
+        this.mangaList[index].status = arrayItems[3]
+        this.mangaList[index].author = arrayItems[4]
+        this.mangaList[index].notes = arrayItems[5]
+
+        this.document.getElementById(id).textContent = this.mangaList[index].toString()
+
+
         //to do
     }
     addToLeftList(newManga){

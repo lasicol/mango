@@ -17,6 +17,7 @@ process.env.NODE_ENV = 'DEBUG'
 //Initialize windows vars
 let mainWindow :any;
 let addWindow :any;
+let editWindow :any;
 //Listen for app to be ready
 app.on('ready', function(){
     //Create new window, pass empty object
@@ -63,28 +64,29 @@ ipcMain.on('mainhtml:ready', () => {
 
 
 // Handle create add window
-function createAddWindow(){
+function createSubWindow(title: string, htmlpath: any){
     //Create new window
-    addWindow = new BrowserWindow({
+    var window: any = new BrowserWindow({
         width: 320,
         minWidth: 320,
         height: 246,
         minHeight: 246,
         maxHeight: 246,
-        title: 'Add Manga',
+        title: title,
         frame: false
     });
     
     //Load html info window
-    addWindow.loadURL(url.format({
-        pathname: path.join(__dirname, '../gui/addWindow.html'),
+    window.loadURL(url.format({
+        pathname: htmlpath,
         protocol: 'file:',
         slashes: true
     }));
     //Garbage collection handle
-    addWindow.on('close', function(){
-        addWindow = null;
+    window.on('close', function(){
+        window = null;
     })
+    return window
 }
 
 // Catch item:add
@@ -92,10 +94,20 @@ ipcMain.on('manga:add', function(e: any, array :any){
     mainWindow.webContents.send('manga:add', array);
     addWindow.close();
 })
+ipcMain.on('manga:update', function(e: any, id: any, array :any){
+    mainWindow.webContents.send('manga:update', id, array);
+    editWindow.close();
+})
 
 ipcMain.on('create:addWindow', (event: any, text: string) => {
-    createAddWindow()
+    addWindow = createSubWindow('Add manga', path.join(__dirname, '../gui/addWindow.html'))
     ipcMain.on('addWindow:ready', (event: any) => {
         addWindow.webContents.send('init:title', text)
+    })
+})
+ipcMain.on('create:editWindow', (event: any, item: any) => {
+    editWindow = createSubWindow('Edit manga', path.join(__dirname, '../gui/editWindow.html'))
+    ipcMain.on('editWindow:ready', (event: any) => {
+        editWindow.webContents.send('init:data', item)
     })
 })
