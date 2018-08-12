@@ -4,8 +4,12 @@ module.exports = class RightList{
         this.selection = ''
         this.document = document
         this.htmList = this.document.getElementById('Pendinglist')
+        this.htmlInput = this.document.getElementById("pendingInput")
     }
     
+    push(element){
+        this.list.push(element)
+    }
 
     show(textFunction, itemList){
         itemList.forEach((element) => {
@@ -13,13 +17,13 @@ module.exports = class RightList{
         })
     }
 
-
     add(newLink){
         let newPending = {
             link: newLink,
             id: uniqid('pending-')
         }
-        Utilities.insertLi(Utilities.linkToTitle(newLink), -1, 'collection-item', newPending.id, this.document.getElementById('Pendinglist'), this.document)
+        Utilities.insertLi(Utilities.linkToTitle(newLink), -1, 'collection-item', newPending.id, this.htmList, this.document)
         this.list.push(newPending)
+        this.htmlInput.value = ''
     }
 }

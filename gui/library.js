@@ -14,10 +14,10 @@ module.exports = class Library {
     load(){
         this.data.lib.forEach((element) => {
             var mangaItem = new Manga(element.title, element.volume, element.chapter, element.status, element.author, element.notes)
-            this.leftList.list.push(mangaItem)
+            this.leftList.push(mangaItem)
         })
         this.data.pending.forEach((element) => {
-            this.rightList.list.push({
+            this.rightList.push({
                 link: element,
                 text: Utilities.linkToTitle(element),
                 id: uniqid('pending-')
@@ -50,7 +50,6 @@ module.exports = class Library {
         this.document.getElementById('completeStat').textContent = this.complete
         this.document.getElementById('pendingStat').textContent = this.rightList.list.length
         if (this.ongoing + this.complete != this.leftList.list.length){
-            console.log(this.leftList.list.length)
             this.document.getElementById('allStat').textContent = 'Error, all: ' + this.leftList.list.length + ' while ongoing+complete= ' + (this.ongoing+this.complete)
         }
         else{

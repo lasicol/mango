@@ -8,7 +8,9 @@ module.exports = class LeftList{
         this.trashHtmlList = this.document.getElementById('Trashlist')
     }
 
- 
+    push(element){
+        this.list.push(element)
+    }
     show(textFunction, list){
         list.forEach((element) => {
             Utilities.insertLi(textFunction(element), -1, 'collection-item', element.id, this.htmlList, this.document)
@@ -60,8 +62,8 @@ module.exports = class LeftList{
             event.target.remove()
             var index = Utilities.findById(this.list, id)
             var item = this.list[index]
-            Utilities.insertLi(item.toString(), -1, 'collection-item', 'deleted-'+id, this.trashHtmlList, this.document)
             this.trashCan.push(item)
+            Utilities.insertLi(item.toString(), -1, 'collection-item', 'deleted-'+id, this.trashHtmlList, this.document)
         }
     }
     
@@ -73,7 +75,7 @@ module.exports = class LeftList{
             var item = this.trashCan[index]
             var i
             for (i = 0; i < this.list.length; i++){
-                if (this.document.getElementById('Mangalist').children[i].textContent.toLowerCase() > item.title.toLowerCase()){
+                if (this.htmlList.children[i].textContent.toLowerCase() > item.title.toLowerCase()){
                     break
                 }
             }
@@ -81,5 +83,30 @@ module.exports = class LeftList{
             this.trashCan.splice(index, 1)
         }
     }
-
+    toggleDeleteMode(){
+        let toTrash = (event) => {
+            this.moveToTrash(event)
+        }
+        let fromTrash = (event) => {
+            this.moveFromTrash(event)
+        }
+        if (mangaMenu.getMenuItemById("toggleDelete").checked){
+            this.document.getElementById('titleBar').style.backgroundColor = 'rgb(237, 33, 33)'
+            this.document.getElementById('rightColumn').style.display = 'none'
+            this.document.getElementById('rightColumnDeleteMode').style.display = 'block'
+            this.htmlList.addEventListener('click', toTrash)
+            this.trashHtmlList.addEventListener('click', fromTrash)
+        }
+        else{
+            this.document.getElementById('titleBar').style.backgroundColor = 'rgb(32, 34, 37)'
+            this.document.getElementById('rightColumn').style.display = 'block'
+            this.document.getElementById('rightColumnDeleteMode').style.display = 'none'
+            this.htmlList.removeEventListener('click', toTrash)
+            this.trashHtmlList.removeEventListener('click', fromTrash)
+            this.trashCan = []
+            this.trashHtmlList.innerHTML = ''
+            this.htmlList.innerHTML = ''
+            this.show( (x) => x.toString(),this.list)
+        }
+    }
 }
