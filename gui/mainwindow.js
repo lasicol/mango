@@ -20,7 +20,7 @@ mangaMenu.append(new MenuItem({label: 'Copy Title', click() {
     clipboard.writeText(MangaLibrary.leftList.list[index].title)
 }}))
 mangaMenu.append(new MenuItem({type: 'separator'}))
-mangaMenu.append(new MenuItem({id: "toggleDelete", type: 'checkbox', label: 'DELETE MODE', click() {toggleDeleteMode(event)}}))
+mangaMenu.append(new MenuItem({id: "toggleDelete", type: 'checkbox', label: 'DELETE MODE', click() {toggleDeleteMode()}}))
 const pendingMenu = new Menu()
 pendingMenu.append(new MenuItem({label: 'Copy Link', click() {
     let index = Utilities.findById(MangaLibrary.rightList.list, MangaLibrary.rightList.selection)
@@ -66,7 +66,7 @@ ipcRenderer.on('manga:add', (e, arrayItems) => {
         MangaLibrary.showStats()
     }
 })
-
+//Update item from left list (manga)
 ipcRenderer.on('manga:update', (event, id, arrayItems) => {
     if (arrayItems[0]){
         MangaLibrary.leftList.updateItem(id, arrayItems)
@@ -129,10 +129,8 @@ document.getElementById('exitButton').addEventListener('click', (event) => {
 
 //Edit item from left column
 document.getElementById('Mangalist').addEventListener('dblclick', (event) => {
-    let id = event.target.id
-    let index = Utilities.findById(MangaLibrary.leftList.list, id)
-    let item = MangaLibrary.leftList.list[index]
-    ipcRenderer.send('create:editWindow', item)
+    let index = Utilities.findById(MangaLibrary.leftList.list, event.target.id)
+    ipcRenderer.send('create:editWindow', MangaLibrary.leftList.list[index])
 });
 
 document.getElementById("mangaInput").addEventListener('keyup', (event) => {
@@ -167,12 +165,11 @@ function moveFromTrash(event){
     MangaLibrary.leftList.moveFromTrash(event)
 }
 
-function toggleDeleteMode(event){
+function toggleDeleteMode(){
     if (mangaMenu.getMenuItemById("toggleDelete").checked){
         document.getElementById('titleBar').style.backgroundColor = 'rgb(237, 33, 33)'
         document.getElementById('rightColumn').style.display = 'none'
         document.getElementById('rightColumnDeleteMode').style.display = 'block'
-        
         document.getElementById('Mangalist').addEventListener('click', movetoTrash)
         document.getElementById('Trashlist').addEventListener('click', moveFromTrash)
     }

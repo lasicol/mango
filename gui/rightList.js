@@ -1,5 +1,5 @@
 module.exports = class RightList{
-    constructor(){
+    constructor(document){
         this.list = []
         this.selection = ''
         this.document = document

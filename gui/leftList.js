@@ -2,7 +2,7 @@ module.exports = class LeftList{
     constructor(document){
         this.list = []
         this.selection = ''
-        this.trashCan = [] //indexes of elements to delete
+        this.trashCan = []
         this.document = document
         this.htmlList = this.document.getElementById('Mangalist')
         this.trashHtmlList = this.document.getElementById('Trashlist')
@@ -81,4 +81,5 @@ module.exports = class LeftList{
             this.trashCan.splice(index, 1)
         }
     }
+
 }
