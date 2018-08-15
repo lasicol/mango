@@ -3,17 +3,6 @@ const url = require('url');
 const path = require('path');
 const {app, BrowserWindow, Menu, ipcMain, globalShortcut} = electron;
 
-// ====================================================
-// -------------- reading json ------------------------
-const fs = require('fs');
-const jsonpath = path.join(__dirname, "../library.json")
-import { JsonReader } from "./jsonReader"
-import { TIMEOUT } from "dns";
-var library = new JsonReader(fs, jsonpath).openJson();
-// =====================================================
-
-//SET ENV
-process.env.NODE_ENV = 'DEBUG'
 //Initialize windows vars
 let mainWindow :any;
 let addWindow :any;
@@ -52,15 +41,8 @@ app.on('ready', function(){
     globalShortcut.register('CommandOrControl+I', () => {
         BrowserWindow.getFocusedWindow().toggleDevTools()
     })
-    
 
 });
-
-
-//send json file to the mainwindow
-ipcMain.on('mainhtml:ready', () => {
-    mainWindow.webContents.send('lib:load', library);
-})
 
 
 // Handle create add window
