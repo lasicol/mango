@@ -1,3 +1,5 @@
+const fs = require("fs")
+
 module.exports = class JsonReader {
     _createEmptyLibrary() {
         let emptyLibrary = {lib: [], pending : []}

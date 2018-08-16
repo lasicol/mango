@@ -1,18 +1,19 @@
+const Utilities = require('./utilities')
+
 module.exports = class LeftList{
-    constructor(document){
+    constructor(){
         this.list = []
-        this.selection = ''
-        this.trashCan = []
-        this.document = document
-        this.htmlList = this.document.getElementById('Mangalist')
-        this.trashHtmlList = this.document.getElementById('Trashlist')
+        this.selection = ''       
     }
 
-    push(element){
-        this.list.push(element)
-    }
+    push(element){this.list.push(element)}
     
+    getList(){return this.list}
 
+    getLength(){return this.list.length}
+
+    getSelection(){return this.selection}
+    setSelection(value){this.selection = value}
  
     updateItem(id, arrayItems){
         let index = Utilities.findById(this.list, id)
@@ -21,30 +22,26 @@ module.exports = class LeftList{
         this.list[index].status = arrayItems[3]
         this.list[index].author = arrayItems[4]
         this.list[index].notes = arrayItems[5]
+        return index
 
-        this.document.getElementById(id).textContent = this.list[index].toString()
     }
-
-    add(newManga){
-        var i
-        for (i = 0; i < this.list.length; i++){
-            if (this.list[i].title.toLowerCase() > newManga.title.toLowerCase()){
-                break
+    _findSpot(title){
+        for (let i = 0; i < this.getLength(); i++){
+            if (this.list[i].title.toLowerCase() > title){
+                return i
             }
         }
-        Utilities.insertLi(newManga.toString(), i, 'collection-item', newManga.id, this.htmlList, this.document)
-        this.list.splice(i, 0, newManga)
+        return this.getLength()
+    }
+    add(newManga){
+        let index = this._findSpot(newManga.title.toLowerCase())
+        this.list.splice(index, 0, newManga)
+        return index
     }
 
-    emptyTrashCan(){
-        if (this.trashCan){
-            this.trashCan.forEach( (item) => {
-                Utilities.removeItem('deleted-'+item.id, this.list, this.document)
-                this.list.splice(Utilities.findById(this.list, item.id), 1)
-            })
-            this.trashCan = []
-            this.trashHtmlList.innerHTML = ''
-        }
+    remove(index){
+        this.list.splice(index, 1)
     }
+    
 
 }

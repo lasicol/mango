@@ -1,4 +1,5 @@
-//exports.__esModule = true;
+const uniqid = require('uniqid');
+
 module.exports = class Manga {
     constructor(title, volume, chapter, status, author, notes){
         this.title = title
@@ -17,5 +18,23 @@ module.exports = class Manga {
             return `${this.title} v${this.volume} c${this.chapter} ${this.status} ${this.author}` 
         }
     }
+    getTitle(){return this.title}
+
+    getVolume(){return this.volume}
+    setVolume(value){this.volume = value}
+
+    getChapter(){return this.chapter}
+    setChapter(value){this.chapter = value}
+
+    getStatus(){return this.status}
+    setStatus(value){this.status = value}
+
+    getAuthor(){return this.author}
+    setAuthor(value){this.author = value}
+
+    getNotes(){return this.notes}
+    setNotes(value){this.notes = value}
+    
+    getId(){return this.id}
 }
 
