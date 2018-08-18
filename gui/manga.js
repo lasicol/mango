@@ -34,7 +34,7 @@ module.exports = class Manga {
 
     getNotes(){return this.notes}
     setNotes(value){this.notes = value}
-    
+
     getId(){return this.id}
 }
 

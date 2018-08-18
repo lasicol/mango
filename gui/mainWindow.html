@@ -2,7 +2,6 @@
 <html lang="en">
     <head>
         <title>Manga Library</title>
-        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css"> -->
         <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="mainWindowstyles.css">
     </head>
@@ -17,7 +16,7 @@
                 </div>
             </div>
             <div id = "secondRow" class="row", style="height: 550px;">
-                <div class="col-7 mangaColumn">
+                <div id= "MangaColumn" class="col-7 mangaColumn">
                     <ul id="Mangalist"></ul>
                 </div>
                 <div id="rightColumn" class="col-5 pendingColumn">
@@ -47,12 +46,15 @@
                                     <div class="col">Pending</div>
                                     <div id="pendingStat" class="col"></div>
                                 </div>
+                                <div class="row">
+                                    <div id="notSavedAlert" class="col" style="visibility: hidden">There are unsaved changes!</div>
+                                    
+                                </div>
                             </center>
                         </div>
                     </div>
                 </div>
                 <div id="rightColumnDeleteMode" class="col-5 pendingColumn">
-                    <!-- <button>Delete trash</button> -->
                     <ul id="Trashlist"></ul>
                 </div>
             </div>

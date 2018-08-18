@@ -26,13 +26,4 @@ module.exports = class Utilities {
             targetHtmlObject.appendChild(li)
         }
     }
-
-    static removeItem(id, list, document){
-        var index = Utilities.findById(list, id)
-        if (index > -1){
-            let item = document.getElementById(id)
-            item.remove()
-            list.splice(index, 1)
-        }
-    }
 }

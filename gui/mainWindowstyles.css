@@ -102,3 +102,15 @@ body {
 #mangaInput:focus, #pendingInput:focus {
     outline: none
 }
+
+@keyframes flashing-text {
+    0% {color: red;}
+    50% {color: rgb(179, 180, 183);}
+    100% {color: red;}
+}
+#notSavedAlert  {
+    font-weight: bold;
+    animation-name: flashing-text;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}

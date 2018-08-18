@@ -3,16 +3,16 @@ const RightList = require('./rightList')
 const uniqid = require('uniqid');
 const Utilities = require('./utilities')
 const Manga = require('./manga');
+const JsonReader = require('./jsonReader')
 module.exports = class Library {
     constructor(path, document){
         this.path = path
-        this.data = JsonReader.open(this.path)
         this.document = document
         this.leftList = new LeftList()
         this.rightList = new RightList()
         this.trashCan = []
-        this.trashHtmlList = this.document.getElementById('Trashlist')
-        this.isSaved = true
+        //this.isSaved = true
+        this.isDeleteMode = false
         this.ongoing = 0
         this.complete = 0
         this.all = 0
@@ -20,18 +20,18 @@ module.exports = class Library {
     }
 
     load(){
-        this.data.lib.forEach((element) => {
+        let data = JsonReader.open(this.path)
+        data.lib.forEach((element) => {
             var mangaItem = new Manga(element.title, element.volume, element.chapter, element.status, element.author, element.notes)
             this.leftList.push(mangaItem)
         })
-        this.data.pending.forEach((element) => {
+        data.pending.forEach((element) => {
             this.rightList.push({
                 link: element,
                 text: Utilities.linkToTitle(element),
                 id: uniqid('pending-')
             })
         })
-        this.data = null
         this.countStats()
     }
 
@@ -49,14 +49,11 @@ module.exports = class Library {
             }
             lib.push(element)
         }
-
         let pending = []
         for (let i = 0; i < this.getRightLength();i++){
             let element = this.getRightList()[i]
             pending.push(element.link)
         }
-        
-
         return {lib: lib, pending: pending}
     }
 
@@ -88,7 +85,7 @@ module.exports = class Library {
     }
     
     filterLeft(text){
-        var filtered = this.leftList.getList().filter(element => element.toString().toLowerCase().includes(text.toLowerCase()))
+        let filtered = this.leftList.getList().filter(element => element.toString().toLowerCase().includes(text.toLowerCase()))
         this.document.getElementById('Mangalist').innerHTML = ''
         this.showLeft(filtered)
     }
@@ -142,44 +139,52 @@ module.exports = class Library {
     getPending(){return this.pending}
     incPending(){this.pending++}
     descPending(){this.pending--}
+    getMode(){return this.isDeleteMode}
+    hideSaveAlert(){
+        let element = this.document.getElementById('notSavedAlert')
+        if (element.style.visibility != 'hidden'){
+            element.style.visibility = 'hidden'
+        }
+    }
+    showSaveAlert(){
+        let element = this.document.getElementById('notSavedAlert')
+        if (element.style.visibility != 'visible'){
+            this.document.getElementById('notSavedAlert').style.visibility = 'visible'
+        }
+    }
 
 
     countStats(){
         this.getLeftList().forEach( (item) => {
-            if (item.getStatus() == 'ongoing'){
-                this.incOngoing()
-            }
-            else if (item.getStatus() == 'complete'){
-                this.incComplete()
-            }
+            item.getStatus() == 'ongoing' ? this.incOngoing() : this.incComplete()
             this.incAll()
         })
         this.all = this.getLeftListLength()
-        this.pending = this.rightList.list.length
+        this.pending = this.getRightLength()
       }
   
     //update statistics
     showStats(){
         this.document.getElementById('ongoingStat').textContent = this.getOngoing()
         this.document.getElementById('completeStat').textContent = this.getComplete()
-        this.document.getElementById('pendingStat').textContent = this.rightList.list.length
-
-
+        this.document.getElementById('pendingStat').textContent = this.getRightLength()
         if (this.getOngoing() + this.getComplete() != this.getLeftListLength()){
-            this.document.getElementById('allStat').textContent = 'Error, all: ' + this.getLeftListLength() + ' while ongoing+complete= ' + (this.getOngoing()+this.getComplete())
+            this.document.getElementById('allStat').textContent = `Error, all: ${this.getLeftListLength()} while ongoing+complete= ${(this.getOngoing()+this.getComplete())}` 
         }
         else{
             this.document.getElementById('allStat').textContent  = this.getLeftListLength()
         }
     }
 
-    changeToDeleteMode(){
+    enableDeleteMode(){
+        this.isDeleteMode = true
         this.document.getElementById('titleBar').style.backgroundColor = 'rgb(237, 33, 33)'
         this.document.getElementById('rightColumn').style.display = 'none'
         this.document.getElementById('rightColumnDeleteMode').style.display = 'block'
     }
     
-    changeToNormalMode(){
+    disableDeleteMode(){
+        this.isDeleteMode = false
         this.document.getElementById('titleBar').style.backgroundColor = 'rgb(32, 34, 37)'
         this.document.getElementById('rightColumn').style.display = 'block'
         this.document.getElementById('rightColumnDeleteMode').style.display = 'none'
@@ -187,7 +192,7 @@ module.exports = class Library {
             this.addLeft(item)
         })
         this.trashCan = []
-        this.trashHtmlList.innerHTML = ''
+        this.document.getElementById('Trashlist').innerHTML = ''
         this.document.getElementById('Mangalist').innerHTML = ''
         this.showLeft(this.getLeftList())
     }
@@ -195,19 +200,38 @@ module.exports = class Library {
     emptyTrashCan(){
         if (this.trashCan){
             this.trashCan.forEach( (item) => {
-                this.document.getElementById('deleted-'+item.id).remove()
-                if (item.getStatus() =='ongoing'){
-                    this.descOngoing()
-                }
-                else{
-                    this.descComplete()
-                }
+                this.document.getElementById(item.id).remove()
+                item.getStatus() =='ongoing' ? this.descOngoing() : this.descComplete()
                 this.descAll()
             })
             this.trashCan = []
-            this.trashHtmlList.innerHTML = ''
+            this.document.getElementById('Trashlist').innerHTML = ''
         }
     }
+
+    moveToTrash(event){
+        let id = event.target.id
+        if (id.substring(0, 6) == 'manga-'){
+            event.target.remove()
+            let index = Utilities.findById(this.getLeftList(), id)
+            let item = this.getLeftList()[index]
+            Utilities.insertLi(item.toString(), -1, 'collection-item', id, this.document.getElementById('Trashlist'), this.document)
+            this.removeLeft(index)
+            this.trashCan.push(item)
+        }
+    }
+    
+    moveFromTrash(event){
+        let id = event.target.id
+        if (id.substring(0, 6) == 'manga-'){
+            event.target.remove()
+            let index = Utilities.findById(this.trashCan, id)
+            let item = this.trashCan[index]
+            this.trashCan.splice(index, 1)
+            this.addLeft(item)
+        }
+    }
+
     save(){
         JsonReader.save(this.path, this.toJson())
     }

@@ -1,13 +1,9 @@
 const electron = require('electron');
 const {ipcRenderer, remote, clipboard} = electron;
 const {Menu, MenuItem} = remote
-//const fs = require("fs");
-
 const Manga = require('./manga');
 const Library = require('./library')
 const Utilities = require('./utilities')
-const JsonReader = require('./jsonReader')
-
 
 //Load content into HTML
 MangaLibrary = new Library("library.json", document)
@@ -16,9 +12,10 @@ MangaLibrary.showLeft(MangaLibrary.getLeftList())
 MangaLibrary.showRight(MangaLibrary.getRightList())
 MangaLibrary.showStats()  
 
-
 //Creating context menus
 const mangaMenu = new Menu()
+const pendingMenu = new Menu()
+const deleteMenu = new Menu()
 mangaMenu.append(new MenuItem({label: 'Update Entry', click() {
     let index = Utilities.findById(MangaLibrary.getLeftList(), MangaLibrary.getLeftSelection())
     ipcRenderer.send('create:editWindow', MangaLibrary.getLeftList()[index])
@@ -28,29 +25,63 @@ mangaMenu.append(new MenuItem({label: 'Copy Title', click() {
     clipboard.writeText(MangaLibrary.getLeftList()[index].title)
 }}))
 mangaMenu.append(new MenuItem({type: 'separator'}))
-mangaMenu.append(new MenuItem({id: "toggleDelete", type: 'checkbox', label: 'DELETE MODE', click() {toggleDeleteMode()}}))
-const pendingMenu = new Menu()
+mangaMenu.append(new MenuItem({id: "toggleDelete", type: 'checkbox', label: 'DELETE MODE', click() {
+    if (mangaMenu.getMenuItemById("toggleDelete").checked){
+        MangaLibrary.enableDeleteMode()       
+    }
+    else{
+        MangaLibrary.disableDeleteMode()
+    }
+}}))
+
 pendingMenu.append(new MenuItem({label: 'Copy Link', click() {
     let index = Utilities.findById(MangaLibrary.getRightList(), MangaLibrary.getRightSelection())
     clipboard.writeText(MangaLibrary.getRightList()[index].link)
 }}))
 pendingMenu.append(new MenuItem({type: 'separator'}))
 pendingMenu.append(new MenuItem({label: 'Delete Entry', click() {
-    //Utilities.removeItem(MangaLibrary.getRightSelection(), MangaLibrary.getRightList(), document)
     let index = Utilities.findById(MangaLibrary.getRightSelection())
     MangaLibrary.removeRight(index)
     document.getElementById(MangaLibrary.getRightSelection()).remove()
     MangaLibrary.descPending()
     MangaLibrary.showStats()
-}}))
-const deleteMenu = new Menu()
-deleteMenu.append(new MenuItem({label: 'Empty Trash', click() {
-    MangaLibrary.emptyTrashCan()
-    //MangaLibrary.countStats()
-    MangaLibrary.showStats()
+    MangaLibrary.showSaveAlert()
 }}))
 
-//Add item to left list (manga) from addWindow
+deleteMenu.append(new MenuItem({label: 'Empty Trash', click() {
+    MangaLibrary.emptyTrashCan()
+    MangaLibrary.showStats()
+    MangaLibrary.showSaveAlert()
+}}))
+
+document.addEventListener('dragover', event => event.preventDefault());
+document.addEventListener('drop', event => event.preventDefault());
+
+// ============================================================================================
+// ----------------- maintain layout during maximize/resize------------------------------------
+ipcRenderer.on('resize', (e, windowHeight) => {
+    newHeight = parseInt(windowHeight) - 50
+    document.getElementById('secondRow').style.height = newHeight.toString() + 'px'
+})
+ipcRenderer.on('maximize', (e, windowHeight) => {
+    newHeight = parseInt(windowHeight) - 66
+    document.getElementById('secondRow').style.height = newHeight.toString() + 'px'
+})
+// ============================================================================================
+
+document.getElementById('minimizeButton').addEventListener('click', (event) => {
+    remote.getCurrentWindow().minimize(); 
+})
+document.getElementById('maximizeButton').addEventListener('click', (event) => {
+    let window = remote.getCurrentWindow();
+    if (window.isMaximized()){ window.unmaximize() }
+    else{ window.maximize() }
+})
+document.getElementById('exitButton').addEventListener('click', (event) => {
+    remote.getCurrentWindow().close(); 
+})
+
+//Add item to left list from addWindow
 ipcRenderer.on('manga:add', (e, arrayItems) => {
     if (arrayItems[0]){
         let newManga = new Manga(arrayItems[0], arrayItems[1], arrayItems[2], arrayItems[3], arrayItems[4], arrayItems[5])
@@ -64,81 +95,36 @@ ipcRenderer.on('manga:add', (e, arrayItems) => {
         }
         MangaLibrary.incAll()
         MangaLibrary.showStats()
+        MangaLibrary.showSaveAlert()
     }
 })
-//Update item from left list (manga)
+//Update item from left list
 ipcRenderer.on('manga:update', (event, id, arrayItems) => {
     if (arrayItems[0]){
         MangaLibrary.updateLeftList(id, arrayItems)
-        MangaLibrary.isSaved = false
+        MangaLibrary.showSaveAlert()
     }
 })
 
-//add item to right list (pending)
-document.getElementById("pendingInput").addEventListener('keyup', (event) => {
-    var text = MangaLibrary.document.getElementById("pendingInput").value
-    if (event.key == "Enter" && text != ""){
-        MangaLibrary.addRight(text)
-        MangaLibrary.incPending()
-        MangaLibrary.showStats()
-        MangaLibrary.isSaved = false
-    }
-})
-
-// ================================================
-// ----- maintain layout during maximize/resize----
-ipcRenderer.on('resize', (e, windowHeight) => {
-    newHeight = parseInt(windowHeight) - 50
-    document.getElementById('secondRow').style.height = newHeight.toString() + 'px'
-})
-ipcRenderer.on('maximize', (e, windowHeight) => {
-    newHeight = parseInt(windowHeight) - 66
-    document.getElementById('secondRow').style.height = newHeight.toString() + 'px'
-})
-// ================================================
-
-// =============================================================================
-// ---------------- show app contextmenu/select item----------------------------
-window.addEventListener('contextmenu', (event) => {
+document.getElementById('MangaColumn').addEventListener('contextmenu', (event) => {
     event.preventDefault()
     if (event.target.id.substring(0, 6) == 'manga-'){
         MangaLibrary.setLeftSelection(event.target.id)
-        mangaMenu.popup({window: remote.getCurrentWindow()})
     }
-    else if (event.target.className == 'col-7 mangaColumn'){
-        mangaMenu.popup({window: remote.getCurrentWindow()})
-    }else if (event.target.id.substring(0, 8) == 'pending-'){
-        MangaLibrary.setRightSelection(event.target.id)
-        pendingMenu.popup({window: remote.getCurrentWindow()})
-    }else if (event.target.id.substring(0, 8) == 'deleted-' || event.target.id  == 'rightColumnDeleteMode'){
-        deleteMenu.popup({window: remote.getCurrentWindow()})
-}
-}, false)
-// =============================================================================
+    mangaMenu.popup({window: remote.getCurrentWindow()})
+})
 
-// =============================================================================
-// ---------------------- add app buttons --------------------------------------
-document.getElementById('minimizeButton').addEventListener('click', (event) => {
-    remote.getCurrentWindow().minimize(); 
-})
-document.getElementById('maximizeButton').addEventListener('click', (event) => {
-    var window = remote.getCurrentWindow();
-    if (window.isMaximized()){ window.unmaximize() }
-    else{ window.maximize() }
-})
-document.getElementById('exitButton').addEventListener('click', (event) => {
-    remote.getCurrentWindow().close(); 
-})
-// =============================================================================
-
-//Start editing item from left list
 document.getElementById('Mangalist').addEventListener('dblclick', (event) => {
     let index = Utilities.findById(MangaLibrary.getLeftList(), event.target.id)
     ipcRenderer.send('create:editWindow', MangaLibrary.getLeftList()[index])
 });
-
+document.getElementById('Mangalist').addEventListener('click', (event) => {
+    if (MangaLibrary.getMode()){
+        MangaLibrary.moveToTrash(event)
+    }
+})
 document.getElementById("mangaInput").addEventListener('keyup', (event) => {
-    var text = document.getElementById("mangaInput").value
+    let text = document.getElementById("mangaInput").value
 
     //filter list
     //to avoid rerendering the whole list each time user press backspace or delete on already empty input box, every other function key will rerender it though
@@ -147,8 +133,8 @@ document.getElementById("mangaInput").addEventListener('keyup', (event) => {
     }
 
     //open addWindow for entering new manga
-    if (event.key == "Enter" && text != ""){
-        var similarMangas = MangaLibrary.getLeftList().filter(element => element.toString().toLowerCase().includes(text))
+    if(event.key == "Enter" && text != ""){
+        let similarMangas = MangaLibrary.getLeftList().filter(element => element.toString().toLowerCase().includes(text))
         let length = similarMangas.length
         if (length > 0){
             if (!confirm(length + ' duplicates found, do you want to add this title anyway?')){
@@ -156,64 +142,47 @@ document.getElementById("mangaInput").addEventListener('keyup', (event) => {
             }
         }
         document.getElementById('Mangalist').innerHTML = ''
-        // MangaLibrary.leftList.show( (x) => x.toString(), MangaLibrary.leftList.list)
-        MangaLibrary.showLeft(MangaLibrary.getLeftList())
         document.getElementById("mangaInput").value = ''
+        MangaLibrary.showLeft(MangaLibrary.getLeftList())
         ipcRenderer.send('create:addWindow', text)
     }
 })
+
+document.getElementById('Pendinglist').addEventListener('contextmenu', (event) => {
+    if (event.target.id.substring(0, 8) == 'pending-'){
+        MangaLibrary.setRightSelection(event.target.id)
+        pendingMenu.popup({window: remote.getCurrentWindow()})
+    }
+})
+document.getElementById('Pendinglist').addEventListener('dblclick', (event) => {
+    if (event.target.id.substring(0, 8) == 'pending-'){
+        let index = Utilities.findById(MangaLibrary.getRightList(), event.target.id)
+        clipboard.writeText(MangaLibrary.getRightList()[index].link)
+    }
+})
+//add item to the right list
+document.getElementById("pendingInput").addEventListener('keyup', (event) => {
+    let text = MangaLibrary.document.getElementById("pendingInput").value
+    if (event.key == "Enter" && text != ""){
+        MangaLibrary.addRight(text)
+        MangaLibrary.incPending()
+        MangaLibrary.showStats()
+        MangaLibrary.showSaveAlert()
+    }
+})
+
+document.getElementById('rightColumnDeleteMode').addEventListener('contextmenu', (event) => {
+    deleteMenu.popup({window: remote.getCurrentWindow()})
+})
+
+document.getElementById('Trashlist').addEventListener('click', (event) => {
+    MangaLibrary.moveFromTrash(event)
+})
+
 //Save library
 window.addEventListener('keydown', (event) => {
     if (event.key == 's' && event.ctrlKey){
         MangaLibrary.save()
-        MangaLibrary.isSaved = true
+        MangaLibrary.hideSaveAlert()
     }
 })
-
-
-function moveToTrash(event){
-    var id = event.target.id
-    if (id.substring(0, 6) == 'manga-'){
-        event.target.remove()
-        var index = Utilities.findById(MangaLibrary.getLeftList(), id)
-        var item = MangaLibrary.getLeftList()[index]
-        Utilities.insertLi(item.toString(), -1, 'collection-item', 'deleted-'+id, MangaLibrary.trashHtmlList, document)
-        MangaLibrary.removeLeft(index)
-        MangaLibrary.trashCan.push(item)
-    }
-}
-
-function moveFromTrash(event){
-    var id = event.target.id.substr(8)
-    if (id.substring(0, 6) == 'manga-'){
-        event.target.remove()
-        var index = Utilities.findById(MangaLibrary.trashCan, id)
-        var item = MangaLibrary.trashCan[index]
-        var i
-        for (i = 0; i < MangaLibrary.getLeftListLength(); i++){
-            if (document.getElementById('Mangalist').children[i].textContent.toLowerCase() > item.title.toLowerCase()){
-                break
-            }
-        }
-        //Utilities.insertLi(item.toString(), i, 'collection-item', id, MangaLibrary.leftList.htmlList, MangaLibrary.leftList.document)
-        MangaLibrary.trashCan.splice(index, 1)
-        MangaLibrary.addLeft(item)
-    }
-}
-
-
-function toggleDeleteMode(){
-    if (mangaMenu.getMenuItemById("toggleDelete").checked){
-        MangaLibrary.changeToDeleteMode()
-        document.getElementById('Mangalist').addEventListener('click', moveToTrash)
-        MangaLibrary.trashHtmlList.addEventListener('click', moveFromTrash)
-    }
-    else{
-        MangaLibrary.changeToNormalMode()
-        document.getElementById('Mangalist').removeEventListener('click', moveToTrash)
-        MangaLibrary.trashHtmlList.removeEventListener('click', moveFromTrash)
-    }
-}
-
-document.addEventListener('dragover', event => event.preventDefault());
-document.addEventListener('drop', event => event.preventDefault());

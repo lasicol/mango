@@ -44,7 +44,6 @@ app.on('ready', function(){
 
 });
 
-
 // Handle create add window
 function createSubWindow(title: string, htmlpath: any){
     //Create new window
