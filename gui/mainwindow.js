@@ -194,3 +194,12 @@ window.addEventListener('keydown', (event) => {
         MangaLibrary.hideSaveAlert()
     }
 })
+
+window.onbeforeunload = (event) => {
+    if (MangaLibrary.getSaveStatus() == 'visible')
+    {
+        if (confirm('There are unsaved changes, do you wish to save before closing the application?')){
+            MangaLibrary.save()
+        }
+    }
+}

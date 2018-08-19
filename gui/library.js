@@ -140,16 +140,16 @@ module.exports = class Library {
     incPending(){this.pending++}
     descPending(){this.pending--}
     getMode(){return this.isDeleteMode}
+    getSaveStatus(){return this.document.getElementById('notSavedAlert').style.visibility}
+    setSaveStatus(value){this.document.getElementById('notSavedAlert').style.visibility = value}
     hideSaveAlert(){
-        let element = this.document.getElementById('notSavedAlert')
-        if (element.style.visibility != 'hidden'){
-            element.style.visibility = 'hidden'
+        if (this.getSaveStatus() !=  'hidden'){
+            this.setSaveStatus('hidden')
         }
     }
     showSaveAlert(){
-        let element = this.document.getElementById('notSavedAlert')
-        if (element.style.visibility != 'visible'){
-            this.document.getElementById('notSavedAlert').style.visibility = 'visible'
+        if (this.getSaveStatus() !=  'visible'){
+            this.setSaveStatus('visible')
         }
     }
     initiateAddManga(title){
