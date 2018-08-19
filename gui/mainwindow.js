@@ -1,9 +1,9 @@
 const electron = require('electron');
 const {ipcRenderer, remote, clipboard} = electron;
 const {Menu, MenuItem} = remote
-const Manga = require('./manga');
+const Manga = require('./../miscellaneous/manga');
 const Library = require('./library')
-const Utilities = require('./utilities')
+const Utilities = require('./../miscellaneous/utilities')
 
 //Load content into HTML
 MangaLibrary = new Library("library.json", document)
@@ -40,7 +40,7 @@ pendingMenu.append(new MenuItem({label: 'Copy Link', click() {
 }}))
 pendingMenu.append(new MenuItem({type: 'separator'}))
 pendingMenu.append(new MenuItem({label: 'Delete Entry', click() {
-    let index = Utilities.findById(MangaLibrary.getRightSelection())
+    let index = Utilities.findById(MangaLibrary.getRightList(),MangaLibrary.getRightSelection())
     MangaLibrary.removeRight(index)
     document.getElementById(MangaLibrary.getRightSelection()).remove()
     MangaLibrary.descPending()

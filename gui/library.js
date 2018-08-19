@@ -1,9 +1,9 @@
-const LeftList = require('./leftList')
-const RightList = require('./rightList')
+const LeftList = require('./../miscellaneous/leftList')
+const RightList = require('./../miscellaneous/rightList')
 const uniqid = require('uniqid');
-const Utilities = require('./utilities')
-const Manga = require('./manga');
-const JsonReader = require('./jsonReader')
+const Utilities = require('./../miscellaneous/utilities')
+const Manga = require('./../miscellaneous/manga');
+const JsonReader = require('./../miscellaneous/jsonReader')
 module.exports = class Library {
     constructor(path, document){
         this.path = path
