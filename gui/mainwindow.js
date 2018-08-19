@@ -125,21 +125,20 @@ document.getElementById('Mangalist').addEventListener('click', (event) => {
 })
 document.getElementById("mangaInput").addEventListener('keyup', (event) => {
     let text = document.getElementById("mangaInput").value
-
     //filter list
     //to avoid rerendering the whole list each time user press backspace or delete on already empty input box, every other function key will rerender it though
-    if ((event.key != 'Backspace' && event.key != 'Delete') || text != "" || MangaLibrary.getLeftListLength() != document.getElementById('Mangalist').children.length){
+    let specialKeys = event.key != 'Backspace' && event.key != 'Delete'
+    let properLength  = MangaLibrary.getLeftListLength() != document.getElementById('Mangalist').children.length
+    if (specialKeys || text != "" || properLength){
         MangaLibrary.filterLeft(document.getElementById("mangaInput").value)
     }
-
+    
     //open addWindow for entering new manga
     if(event.key == "Enter" && text != ""){
         let similarMangas = MangaLibrary.getLeftList().filter(element => element.toString().toLowerCase().includes(text))
         let length = similarMangas.length
-        if (length > 0){
-            if (!confirm(length + ' duplicates found, do you want to add this title anyway?')){
-                return
-            }
+        if (length > 0 && !confirm(length + ' duplicates found, do you want to add this title anyway?')){
+            return
         }
         document.getElementById('Mangalist').innerHTML = ''
         document.getElementById("mangaInput").value = ''

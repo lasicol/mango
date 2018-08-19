@@ -38,5 +38,9 @@ document.querySelector('form').addEventListener('submit', (event) => {
     const notes = document.querySelector('#notes').value;
     ipcRenderer.send('manga:update', item_id, [title, volume, chapter, status, author, notes]);
 });
-
+window.addEventListener('keydown', (event) => {
+    if (event.key == 'Escape'){
+        window.close();
+    }
+})
 ipcRenderer.send('editWindow:ready')

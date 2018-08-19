@@ -5,16 +5,16 @@ const {ipcRenderer, remote} = electron;
 // =============================================================================
 // ---------------------- add app buttons --------------------------------------
 document.getElementById('minimizeButton').addEventListener('click', (event) => {
-    var window = remote.getCurrentWindow();
+    let window = remote.getCurrentWindow();
     window.minimize(); 
 })
 document.getElementById('maximizeButton').addEventListener('click', (event) => {
-    var window = remote.getCurrentWindow();
+    let window = remote.getCurrentWindow();
     if (window.isMaximized()){ window.unmaximize() }
     else{ window.maximize() }
 })
 document.getElementById('exitButton').addEventListener('click', (event) => {
-    var window = remote.getCurrentWindow();
+    let window = remote.getCurrentWindow();
     window.close(); 
 })
 // =============================================================================
@@ -33,5 +33,11 @@ document.querySelector('form').addEventListener('submit', (event) => {
     const notes = document.querySelector('#notes').value;
     ipcRenderer.send('manga:add', [title, volume, chapter, status, author, notes]);
 });
+
+window.addEventListener('keydown', (event) => {
+    if (event.key == 'Escape'){
+        window.close();
+    }
+})
 
 ipcRenderer.send('addWindow:ready')
