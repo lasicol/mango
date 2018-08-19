@@ -1,16 +1,16 @@
 const fs = require("fs")
 
 module.exports = class JsonReader {
-    _createEmptyLibrary() {
+    constructor(path) {
         let emptyLibrary = {lib: [], pending : []}
         let dictstring = JSON.stringify(emptyLibrary)
-        fs.writeFileSync(this.path, dictstring)
+        fs.writeFileSync(path, dictstring)
     }
 
     static open(path){
         if (!fs.existsSync(path)) {
             //create new json file with empty library
-            this._createEmptyLibrary();
+            new JsonReader(path)
         }
         return JSON.parse(fs.readFileSync(path))
     }

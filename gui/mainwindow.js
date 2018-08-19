@@ -16,13 +16,24 @@ MangaLibrary.showStats()
 const mangaMenu = new Menu()
 const pendingMenu = new Menu()
 const deleteMenu = new Menu()
+mangaMenu.append(new MenuItem({label: 'Add Entry', click() {
+    ipcRenderer.send('create:addWindow', "")
+}}))
 mangaMenu.append(new MenuItem({label: 'Update Entry', click() {
-    let index = Utilities.findById(MangaLibrary.getLeftList(), MangaLibrary.getLeftSelection())
-    ipcRenderer.send('create:editWindow', MangaLibrary.getLeftList()[index])
+    let selection = MangaLibrary.getLeftSelection()
+    if (selection != ''){
+        let index = Utilities.findById(MangaLibrary.getLeftList(), MangaLibrary.getLeftSelection())
+        ipcRenderer.send('create:editWindow', MangaLibrary.getLeftList()[index])
+    }
+    
 }}))
 mangaMenu.append(new MenuItem({label: 'Copy Title', click() {
-    let index = Utilities.findById(MangaLibrary.getLeftList(), MangaLibrary.getLeftSelection())
-    clipboard.writeText(MangaLibrary.getLeftList()[index].title)
+    let selection = MangaLibrary.getLeftSelection()
+    if (selection != ''){
+        let index = Utilities.findById(MangaLibrary.getLeftList(), MangaLibrary.getLeftSelection())
+        clipboard.writeText(MangaLibrary.getLeftList()[index].title)
+    }
+    
 }}))
 mangaMenu.append(new MenuItem({type: 'separator'}))
 mangaMenu.append(new MenuItem({id: "toggleDelete", type: 'checkbox', label: 'DELETE MODE', click() {
@@ -111,6 +122,10 @@ document.getElementById('MangaColumn').addEventListener('contextmenu', (event) =
     if (event.target.id.substring(0, 6) == 'manga-'){
         MangaLibrary.setLeftSelection(event.target.id)
     }
+    else{
+        MangaLibrary.setLeftSelection('')
+    }
+
     mangaMenu.popup({window: remote.getCurrentWindow()})
 })
 
@@ -135,15 +150,9 @@ document.getElementById("mangaInput").addEventListener('keyup', (event) => {
     
     //open addWindow for entering new manga
     if(event.key == "Enter" && text != ""){
-        let similarMangas = MangaLibrary.getLeftList().filter(element => element.toString().toLowerCase().includes(text))
-        let length = similarMangas.length
-        if (length > 0 && !confirm(length + ' duplicates found, do you want to add this title anyway?')){
-            return
+        if (MangaLibrary.initiateAddManga(text)){
+            ipcRenderer.send('create:addWindow', text)
         }
-        document.getElementById('Mangalist').innerHTML = ''
-        document.getElementById("mangaInput").value = ''
-        MangaLibrary.showLeft(MangaLibrary.getLeftList())
-        ipcRenderer.send('create:addWindow', text)
     }
 })
 

@@ -4,9 +4,9 @@ const path = require('path');
 const {app, BrowserWindow, Menu, ipcMain, globalShortcut} = electron;
 
 //Initialize windows vars
-let mainWindow :any;
-let addWindow :any;
-let editWindow :any;
+let mainWindow;
+let addWindow;
+let editWindow;
 //Listen for app to be ready
 app.on('ready', function(){
     //Create new window, pass empty object
@@ -18,7 +18,7 @@ app.on('ready', function(){
     //Load html into window
     mainWindow.loadURL(url.format({
         //pathname: path.join(__dirname, '..mainWindow.html'),
-        pathname: path.join(__dirname, "../gui/mainWindow.html"),
+        pathname: path.join(__dirname, "./gui/mainWindow.html"),
         protocol: 'file:',
         slashes: true
     }));
@@ -45,9 +45,9 @@ app.on('ready', function(){
 });
 
 // Handle create add window
-function createSubWindow(title: string, htmlpath: any){
+function createSubWindow(title, htmlpath){
     //Create new window
-    var window: any = new BrowserWindow({
+    var window = new BrowserWindow({
         width: 320,
         minWidth: 320,
         height: 246,
@@ -71,24 +71,24 @@ function createSubWindow(title: string, htmlpath: any){
 }
 
 // Catch item:add
-ipcMain.on('manga:add', function(e: any, array :any){
+ipcMain.on('manga:add', function(e, array){
     mainWindow.webContents.send('manga:add', array);
     addWindow.close();
 })
-ipcMain.on('manga:update', function(e: any, id: any, array :any){
+ipcMain.on('manga:update', function(e, id, array){
     mainWindow.webContents.send('manga:update', id, array);
     editWindow.close();
 })
 
-ipcMain.on('create:addWindow', (event: any, text: string) => {
-    addWindow = createSubWindow('Add manga', path.join(__dirname, '../gui/addWindow.html'))
-    ipcMain.on('addWindow:ready', (event: any) => {
+ipcMain.on('create:addWindow', (event, text) => {
+    addWindow = createSubWindow('Add manga', path.join(__dirname, './gui/addWindow.html'))
+    ipcMain.on('addWindow:ready', (event) => {
         addWindow.webContents.send('init:title', text)
     })
 })
-ipcMain.on('create:editWindow', (event: any, item: any) => {
-    editWindow = createSubWindow('Edit manga', path.join(__dirname, '../gui/editWindow.html'))
-    ipcMain.on('editWindow:ready', (event: any) => {
+ipcMain.on('create:editWindow', (event, item) => {
+    editWindow = createSubWindow('Edit manga', path.join(__dirname, './gui/editWindow.html'))
+    ipcMain.on('editWindow:ready', (event) => {
         editWindow.webContents.send('init:data', item)
     })
 })

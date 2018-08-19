@@ -152,7 +152,17 @@ module.exports = class Library {
             this.document.getElementById('notSavedAlert').style.visibility = 'visible'
         }
     }
-
+    initiateAddManga(title){
+        let similarMangas = this.getLeftList().filter(element => element.toString().toLowerCase().includes(title))
+        let length = similarMangas.length
+        if (length > 0 && !confirm(length + ' duplicates found, do you want to add this title anyway?')){
+            return false
+        }
+        this.document.getElementById('Mangalist').innerHTML = ''
+        this.document.getElementById("mangaInput").value = ''
+        this.showLeft(this.getLeftList())
+        return true
+    }
 
     countStats(){
         this.getLeftList().forEach( (item) => {

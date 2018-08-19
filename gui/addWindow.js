@@ -1,5 +1,5 @@
 const electron = require('electron');
-const Manga = require('./manga');
+const Manga = require('./../miscellaneous/manga');
 const {ipcRenderer, remote} = electron;
 
 // =============================================================================
