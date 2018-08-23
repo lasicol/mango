@@ -39,5 +39,3 @@ window.addEventListener('keydown', (event) => {
         window.close();
     }
 })
-
-ipcRenderer.send('addWindow:ready')

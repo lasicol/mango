@@ -11,7 +11,6 @@ module.exports = class Library {
         this.leftList = new LeftList()
         this.rightList = new RightList()
         this.trashCan = []
-        //this.isSaved = true
         this.isDeleteMode = false
         this.ongoing = 0
         this.complete = 0
@@ -57,43 +56,47 @@ module.exports = class Library {
         return {lib: lib, pending: pending}
     }
 
+    // ===============================================================================================================================================
+    // -------------------------------------------------- left list management -----------------------------------------------------------------------
     addLeft(manga){
         let index = this.leftList.add(manga)
         Utilities.insertLi(manga.toString(), index, 'collection-item', manga.id, this.document.getElementById('Mangalist'), this.document)
+        if (manga.status == 'ongoing'){
+            this.incOngoing()
+        }
+        else{
+            this.incComplete()
+        }
+        this.incAll()
+        this.showStats()
+        this.showSaveAlert()
     }
     updateLeftList(id, arrayItems){
         let index = this.leftList.updateItem(id, arrayItems)
         this.document.getElementById(id).textContent = this.getLeftList()[index].toString()
+        this.showSaveAlert()
     }
-    getLeftList(){
-        return this.leftList.getList()
-    }
-    getLeftListLength(){
-        return this.leftList.getLength()
-    }
+    getLeftList(){return this.leftList.getList()}
+    getLeftListLength(){return this.leftList.getLength()}
     showLeft(list){
         list.forEach((element) => {
             Utilities.insertLi(element.toString(), -1, 'collection-item', element.id, this.document.getElementById('Mangalist'), this.document)
         })
     }
 
-    getLeftSelection(){
-        return this.leftList.getSelection()
-    }
-    setLeftSelection(value){
-        this.leftList.setSelection(value)
-    }
+    getLeftSelection(){return this.leftList.getSelection()}
+    setLeftSelection(value){this.leftList.setSelection(value)}
     
     filterLeft(text){
-        let filtered = this.leftList.getList().filter(element => element.toString().toLowerCase().includes(text.toLowerCase()))
+        let filtered = this.getLeftList().filter(element => element.toString().toLowerCase().includes(text.toLowerCase()))
         this.document.getElementById('Mangalist').innerHTML = ''
         this.showLeft(filtered)
     }
+    removeLeft(index){this.leftList.remove(index)}
+    // ===============================================================================================================================================
 
-    removeLeft(index){
-        this.leftList.remove(index)
-    }
-
+    // ===============================================================================================================================================
+    // -------------------------------------------------- right list management ----------------------------------------------------------------------
     showRight(list){
         list.forEach((element) => {
             Utilities.insertLi(element.text, -1, 'collection-item', element.id, this.document.getElementById('Pendinglist'), this.document)
@@ -104,29 +107,25 @@ module.exports = class Library {
         let id = this.rightList.add(pending)
         Utilities.insertLi(Utilities.linkToTitle(pending), -1, 'collection-item', id, this.document.getElementById('Pendinglist'), this.document)
         this.document.getElementById("pendingInput").value = ''
+        this.incPending()
+        this.showStats()
+        this.showSaveAlert()
     }
 
     removeRight(index){
         this.rightList.remove(index)
+        this.descPending()
+        this.showStats()
+        this.showSaveAlert()
     }
+    getRightList(){return this.rightList.getList()}
+    getRightLength(){return this.rightList.getLength()}
+    getRightSelection(){return this.rightList.getSelection()}
+    setRightSelection(value){this.rightList.setSelection(value)}
+    // ===============================================================================================================================================
 
-    getRightList(){
-        return this.rightList.getList()
-    }
-
-    getRightLength(){
-        return this.rightList.getLength()
-    }
-
-    getRightSelection(){
-        return this.rightList.getSelection()
-    }
-
-    setRightSelection(value){
-        this.rightList.setSelection(value)
-    }
-
-
+    // ===============================================================================================================================================
+    // -------------------------------------------------- info display management---------------------------------------------------------------------
     getOngoing(){return this.ongoing}
     incOngoing(){this.ongoing++}
     descOngoing(){this.ongoing--}
@@ -152,17 +151,8 @@ module.exports = class Library {
             this.setSaveStatus('visible')
         }
     }
-    initiateAddManga(title){
-        let similarMangas = this.getLeftList().filter(element => element.toString().toLowerCase().includes(title))
-        let length = similarMangas.length
-        if (length > 0 && !confirm(length + ' duplicates found, do you want to add this title anyway?')){
-            return false
-        }
-        this.document.getElementById('Mangalist').innerHTML = ''
-        this.document.getElementById("mangaInput").value = ''
-        this.showLeft(this.getLeftList())
-        return true
-    }
+    // ===============================================================================================================================================
+    
 
     countStats(){
         this.getLeftList().forEach( (item) => {
@@ -178,14 +168,29 @@ module.exports = class Library {
         this.document.getElementById('ongoingStat').textContent = this.getOngoing()
         this.document.getElementById('completeStat').textContent = this.getComplete()
         this.document.getElementById('pendingStat').textContent = this.getRightLength()
+        this.ongoing++
         if (this.getOngoing() + this.getComplete() != this.getLeftListLength()){
-            this.document.getElementById('allStat').textContent = `Error, all: ${this.getLeftListLength()} while ongoing+complete= ${(this.getOngoing()+this.getComplete())}` 
+            this.document.getElementById('allStat').textContent = `Error, all: ${this.getLeftListLength()}`
+            +` while ongoing+complete= ${(this.getOngoing()+this.getComplete())}` 
         }
         else{
             this.document.getElementById('allStat').textContent  = this.getLeftListLength()
         }
     }
 
+    initiateAddManga(title){
+        let similarMangas = this.getLeftList().filter(element => element.toString().toLowerCase().includes(title.toLowerCase()))
+        let length = similarMangas.length
+        if (length > 0 && !confirm(length + ' duplicates found, do you want to add this title anyway?')){
+            return false
+        }
+        this.document.getElementById('Mangalist').innerHTML = ''
+        this.document.getElementById("mangaInput").value = ''
+        this.showLeft(this.getLeftList())
+        return true
+    }
+    // ============================================================================================
+    // --------------------- delete mode and trash maintenence ------------------------------------
     enableDeleteMode(){
         this.isDeleteMode = true
         this.document.getElementById('titleBar').style.backgroundColor = 'rgb(237, 33, 33)'
@@ -216,6 +221,8 @@ module.exports = class Library {
             })
             this.trashCan = []
             this.document.getElementById('Trashlist').innerHTML = ''
+            this.showStats()
+            this.showSaveAlert()
         }
     }
 
@@ -241,8 +248,10 @@ module.exports = class Library {
             this.addLeft(item)
         }
     }
+    // ============================================================================================
 
     save(){
         JsonReader.save(this.path, this.toJson())
+        this.hideSaveAlert()
     }
 }

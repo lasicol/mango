@@ -13,7 +13,8 @@ app.on('ready', function(){
     mainWindow = new BrowserWindow({
         minWidth: 700,
         minHeight: 600,
-        frame:false
+        frame:false,
+        show: false
     })
     //Load html into window
     mainWindow.loadURL(url.format({
@@ -36,13 +37,19 @@ app.on('ready', function(){
         mainWindow.webContents.send('maximize', height);
     })
 
+    mainWindow.once('ready-to-show', (event) => {
+        mainWindow.show()
+    })
 
     //Open developer tools item for focused window
     globalShortcut.register('CommandOrControl+I', () => {
-        BrowserWindow.getFocusedWindow().toggleDevTools()
+        if (BrowserWindow.getFocusedWindow() != null){
+            BrowserWindow.getFocusedWindow().toggleDevTools()
+        }
     })
 
 });
+
 
 // Handle create add window
 function createSubWindow(title, htmlpath){
@@ -54,7 +61,8 @@ function createSubWindow(title, htmlpath){
         minHeight: 246,
         maxHeight: 246,
         title: title,
-        frame: false
+        frame: false,
+        show: false
     });
     
     //Load html info window
@@ -82,13 +90,21 @@ ipcMain.on('manga:update', function(e, id, array){
 
 ipcMain.on('create:addWindow', (event, text) => {
     addWindow = createSubWindow('Add manga', path.join(__dirname, './gui/addWindow.html'))
-    ipcMain.on('addWindow:ready', (event) => {
+    addWindow.once('ready-to-show', (event) => {
+        addWindow.show()
+    })
+    addWindow.webContents.on('did-finish-load', (event) => {
         addWindow.webContents.send('init:title', text)
     })
 })
+
 ipcMain.on('create:editWindow', (event, item) => {
     editWindow = createSubWindow('Edit manga', path.join(__dirname, './gui/editWindow.html'))
-    ipcMain.on('editWindow:ready', (event) => {
+    editWindow.once('ready-to-show', (event) => {
+        editWindow.show()
+    })
+    editWindow.webContents.on('did-finish-load', (event) => {
         editWindow.webContents.send('init:data', item)
     })
+
 })

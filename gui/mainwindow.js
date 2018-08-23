@@ -21,17 +21,19 @@ mangaMenu.append(new MenuItem({label: 'Add Entry', click() {
 }}))
 mangaMenu.append(new MenuItem({label: 'Update Entry', click() {
     let selection = MangaLibrary.getLeftSelection()
+    let list = MangaLibrary.getLeftList()
     if (selection != ''){
-        let index = Utilities.findById(MangaLibrary.getLeftList(), MangaLibrary.getLeftSelection())
-        ipcRenderer.send('create:editWindow', MangaLibrary.getLeftList()[index])
+        let index = Utilities.findById(list, selection)
+        ipcRenderer.send('create:editWindow', list[index])
     }
     
 }}))
 mangaMenu.append(new MenuItem({label: 'Copy Title', click() {
     let selection = MangaLibrary.getLeftSelection()
+    let list = MangaLibrary.getLeftList()
     if (selection != ''){
-        let index = Utilities.findById(MangaLibrary.getLeftList(), MangaLibrary.getLeftSelection())
-        clipboard.writeText(MangaLibrary.getLeftList()[index].title)
+        let index = Utilities.findById(list, selection)
+        clipboard.writeText(list[index].title)
     }
     
 }}))
@@ -54,15 +56,10 @@ pendingMenu.append(new MenuItem({label: 'Delete Entry', click() {
     let index = Utilities.findById(MangaLibrary.getRightList(),MangaLibrary.getRightSelection())
     MangaLibrary.removeRight(index)
     document.getElementById(MangaLibrary.getRightSelection()).remove()
-    MangaLibrary.descPending()
-    MangaLibrary.showStats()
-    MangaLibrary.showSaveAlert()
 }}))
 
 deleteMenu.append(new MenuItem({label: 'Empty Trash', click() {
     MangaLibrary.emptyTrashCan()
-    MangaLibrary.showStats()
-    MangaLibrary.showSaveAlert()
 }}))
 
 document.addEventListener('dragover', event => event.preventDefault());
@@ -97,23 +94,12 @@ ipcRenderer.on('manga:add', (e, arrayItems) => {
     if (arrayItems[0]){
         let newManga = new Manga(arrayItems[0], arrayItems[1], arrayItems[2], arrayItems[3], arrayItems[4], arrayItems[5])
         MangaLibrary.addLeft(newManga)
-        //MangaLibrary.leftList.emptyTrashCan()
-        if (newManga.status == 'ongoing'){
-            MangaLibrary.incOngoing()
-        }
-        else{
-            MangaLibrary.incComplete()
-        }
-        MangaLibrary.incAll()
-        MangaLibrary.showStats()
-        MangaLibrary.showSaveAlert()
     }
 })
 //Update item from left list
 ipcRenderer.on('manga:update', (event, id, arrayItems) => {
     if (arrayItems[0]){
         MangaLibrary.updateLeftList(id, arrayItems)
-        MangaLibrary.showSaveAlert()
     }
 })
 
@@ -121,17 +107,16 @@ document.getElementById('MangaColumn').addEventListener('contextmenu', (event) =
     event.preventDefault()
     if (event.target.id.substring(0, 6) == 'manga-'){
         MangaLibrary.setLeftSelection(event.target.id)
-    }
-    else{
+    }else{
         MangaLibrary.setLeftSelection('')
     }
-
     mangaMenu.popup({window: remote.getCurrentWindow()})
 })
 
 document.getElementById('Mangalist').addEventListener('dblclick', (event) => {
-    let index = Utilities.findById(MangaLibrary.getLeftList(), event.target.id)
-    ipcRenderer.send('create:editWindow', MangaLibrary.getLeftList()[index])
+    let list = MangaLibrary.getLeftList()
+    let index = Utilities.findById(list, event.target.id)
+    ipcRenderer.send('create:editWindow', list[index])
 });
 document.getElementById('Mangalist').addEventListener('click', (event) => {
     if (MangaLibrary.getMode()){
@@ -173,9 +158,6 @@ document.getElementById("pendingInput").addEventListener('keyup', (event) => {
     let text = MangaLibrary.document.getElementById("pendingInput").value
     if (event.key == "Enter" && text != ""){
         MangaLibrary.addRight(text)
-        MangaLibrary.incPending()
-        MangaLibrary.showStats()
-        MangaLibrary.showSaveAlert()
     }
 })
 
@@ -189,9 +171,8 @@ document.getElementById('Trashlist').addEventListener('click', (event) => {
 
 //Save library
 window.addEventListener('keydown', (event) => {
-    if (event.key == 's' && event.ctrlKey){
+    if (event.key.toLowerCase() == 's' && event.ctrlKey){
         MangaLibrary.save()
-        MangaLibrary.hideSaveAlert()
     }
 })
 
