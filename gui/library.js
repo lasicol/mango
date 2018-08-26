@@ -38,20 +38,18 @@ module.exports = class Library {
         let lib = []
         for (let i = 0; i < this.getLeftListLength();i++){
             let obj = this.getLeftList()[i]
-            let element = {
+            lib.push({
                 'title': obj.getTitle(),
                 'volume': obj.getVolume(),
                 'chapter': obj.getChapter(),
                 'status': obj.getStatus(),
                 'author': obj.getAuthor(),
                 'notes': obj.getNotes()
-            }
-            lib.push(element)
+            })
         }
         let pending = []
         for (let i = 0; i < this.getRightLength();i++){
-            let element = this.getRightList()[i]
-            pending.push(element.link)
+            pending.push(this.getRightList()[i].link)
         }
         return {lib: lib, pending: pending}
     }
@@ -61,13 +59,8 @@ module.exports = class Library {
     addLeft(manga){
         let index = this.leftList.add(manga)
         Utilities.insertLi(manga.toString(), index, 'collection-item', manga.id, this.document.getElementById('Mangalist'), this.document)
-        if (manga.status == 'ongoing'){
-            this.incOngoing()
-        }
-        else{
-            this.incComplete()
-        }
-        this.incAll()
+        manga.status == 'ongoing' ? this.changeStat('ongoing', 1) : this.changeStat('complete', 1)
+        this.changeStat('all', 1)
         this.showStats()
         this.showSaveAlert()
     }
@@ -92,7 +85,11 @@ module.exports = class Library {
         this.document.getElementById('Mangalist').innerHTML = ''
         this.showLeft(filtered)
     }
-    removeLeft(index){this.leftList.remove(index)}
+    removeLeft(index){
+        this.leftList.remove(index)
+        this.getLeftList()[index].status == 'ongoing' ? this.changeStat('ongoing', -1) : this.changeStat('complete', -1)
+        this.changeStat('all', -1)
+    }
     // ===============================================================================================================================================
 
     // ===============================================================================================================================================
@@ -107,14 +104,14 @@ module.exports = class Library {
         let id = this.rightList.add(pending)
         Utilities.insertLi(Utilities.linkToTitle(pending), -1, 'collection-item', id, this.document.getElementById('Pendinglist'), this.document)
         this.document.getElementById("pendingInput").value = ''
-        this.incPending()
+        this.changeStat('pending', 1)
         this.showStats()
         this.showSaveAlert()
     }
 
     removeRight(index){
         this.rightList.remove(index)
-        this.descPending()
+        this.changeStat('pending', -1)
         this.showStats()
         this.showSaveAlert()
     }
@@ -126,21 +123,32 @@ module.exports = class Library {
 
     // ===============================================================================================================================================
     // -------------------------------------------------- info display management---------------------------------------------------------------------
-    getOngoing(){return this.ongoing}
-    incOngoing(){this.ongoing++}
-    descOngoing(){this.ongoing--}
-    getComplete(){return this.complete}
-    descComplete(){this.complete--}
-    incComplete(){this.complete++}
-    getAll(){return this.all}
-    incAll(){this.all++}
-    descAll(){this.all--}
-    getPending(){return this.pending}
-    incPending(){this.pending++}
-    descPending(){this.pending--}
     getMode(){return this.isDeleteMode}
     getSaveStatus(){return this.document.getElementById('notSavedAlert').style.visibility}
     setSaveStatus(value){this.document.getElementById('notSavedAlert').style.visibility = value}
+    getStat(stat){
+        switch (stat){
+            case "ongoing": return this.ongoing;
+            case  "complete": return this.complete;
+            case 'pending': return this.pending;
+            case 'all': return this.all;
+        }
+    }
+    changeStat(stat, increment){
+        switch (stat){
+            case "ongoing":
+                this.ongoing += increment;
+                break;
+            case  "complete":
+                this.complete += increment;
+                break;
+            case 'pending':
+                this.pending += increment;
+                break;
+            case 'all':
+                this.all += increment
+        }
+    }
     hideSaveAlert(){
         if (this.getSaveStatus() !=  'hidden'){
             this.setSaveStatus('hidden')
@@ -153,11 +161,10 @@ module.exports = class Library {
     }
     // ===============================================================================================================================================
     
-
     countStats(){
         this.getLeftList().forEach( (item) => {
-            item.getStatus() == 'ongoing' ? this.incOngoing() : this.incComplete()
-            this.incAll()
+            item.getStatus() == 'ongoing' ? this.changeStat('ongoing', 1) : this.changeStat('complete', 1)
+            this.changeStat('all', 1)
         })
         this.all = this.getLeftListLength()
         this.pending = this.getRightLength()
@@ -165,13 +172,12 @@ module.exports = class Library {
   
     //update statistics
     showStats(){
-        this.document.getElementById('ongoingStat').textContent = this.getOngoing()
-        this.document.getElementById('completeStat').textContent = this.getComplete()
+        this.document.getElementById('ongoingStat').textContent = this.getStat('ongoing')
+        this.document.getElementById('completeStat').textContent = this.getStat('complete')
         this.document.getElementById('pendingStat').textContent = this.getRightLength()
-        this.ongoing++
-        if (this.getOngoing() + this.getComplete() != this.getLeftListLength()){
+        if (this.getStat('ongoing') + this.getStat('complete') != this.getLeftListLength()){
             this.document.getElementById('allStat').textContent = `Error, all: ${this.getLeftListLength()}`
-            +` while ongoing+complete= ${(this.getOngoing()+this.getComplete())}` 
+            +` while ongoing+complete= ${(this.getStat('ongoing')+this.getStat('complete'))}` 
         }
         else{
             this.document.getElementById('allStat').textContent  = this.getLeftListLength()
@@ -216,8 +222,6 @@ module.exports = class Library {
         if (this.trashCan){
             this.trashCan.forEach( (item) => {
                 this.document.getElementById(item.id).remove()
-                item.getStatus() =='ongoing' ? this.descOngoing() : this.descComplete()
-                this.descAll()
             })
             this.trashCan = []
             this.document.getElementById('Trashlist').innerHTML = ''
@@ -225,7 +229,6 @@ module.exports = class Library {
             this.showSaveAlert()
         }
     }
-
     moveToTrash(event){
         let id = event.target.id
         if (id.substring(0, 6) == 'manga-'){
@@ -235,9 +238,9 @@ module.exports = class Library {
             Utilities.insertLi(item.toString(), -1, 'collection-item', id, this.document.getElementById('Trashlist'), this.document)
             this.removeLeft(index)
             this.trashCan.push(item)
+            
         }
     }
-    
     moveFromTrash(event){
         let id = event.target.id
         if (id.substring(0, 6) == 'manga-'){
