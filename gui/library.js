@@ -65,8 +65,16 @@ module.exports = class Library {
         this.showSaveAlert()
     }
     updateLeftList(id, arrayItems){
-        let index = this.leftList.updateItem(id, arrayItems)
+        let index = Utilities.findById(this.getLeftList(), id)
+        let oldStatus = this.getLeftList()[index].status
+        let newStatus = arrayItems[3]
+        if (oldStatus != newStatus){
+            this.changeStat(oldStatus, -1)
+            this.changeStat(newStatus, 1)
+        }
+        this.leftList.updateItem(id, arrayItems)
         this.document.getElementById(id).textContent = this.getLeftList()[index].toString()
+        this.showStats()
         this.showSaveAlert()
     }
     getLeftList(){return this.leftList.getList()}
